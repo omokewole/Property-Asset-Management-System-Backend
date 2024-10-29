@@ -31,7 +31,7 @@ export async function createUser(newUser) {
 
 		return {
 			access_token: accessToken,
-			refreshToken: refreshToken,
+			refresh_token: refreshToken,
 			stats,
 			user: userObj,
 		};

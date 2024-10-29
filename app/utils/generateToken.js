@@ -13,7 +13,7 @@ export function generateJWT(user) {
 		},
 		jwtSecret,
 		{
-			expiresIn: "1m",
+			expiresIn: "30d",
 		}
 	);
 
@@ -23,7 +23,7 @@ export function generateJWT(user) {
 			sub: user.id,
 		},
 		refreshSecret,
-		{ expiresIn: "30d" }
+		{ expiresIn: "60d" }
 	);
 
 	return { accessToken, refreshToken };
