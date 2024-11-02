@@ -40,6 +40,24 @@ export async function allProperties(ownerId) {
   }
 }
 
+export async function singleProperty(propertyId) {
+  try {
+    const property = await PropertyModel.findById(propertyId);
+
+    if (!property) {
+      throw new ErrorWithStatus("Property not found", 404);
+    }
+
+    return property;
+  } catch (error) {
+    console.log(error);
+    throw new ErrorWithStatus(
+      error.message || "An error occured",
+      error.status || 400
+    );
+  }
+}
+
 export async function editProperty(propertyId, propertyData) {
   try {
     const property = await PropertyModel.findById(propertyId);
@@ -54,6 +72,7 @@ export async function editProperty(propertyId, propertyData) {
 
     return property;
   } catch (error) {
+    console.log(error);
     throw new ErrorWithStatus(
       error.message || "An error occured",
       error.status || 400
@@ -77,26 +96,10 @@ export async function deleteProperty(propertyId) {
       }
     }
 
-    await property.remove();
+    await property.deleteOne({ _id: propertyId });
+
   } catch (error) {
-    throw new ErrorWithStatus(
-      error.message || "An error occured",
-      error.status || 400
-    );
-  }
-}
 
-export async function singleProperty(propertyId) {
-  try {
-    const property = await PropertyModel.findById(propertyId);
-
-    if (!property) {
-      throw new ErrorWithStatus("Property not found", 404);
-    }
-
-    return property;
-  } catch (error) {
-    console.log(error);
     throw new ErrorWithStatus(
       error.message || "An error occured",
       error.status || 400

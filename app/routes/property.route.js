@@ -17,7 +17,7 @@ PropertyRourter.post("/", upload.array("images", 25), handleAddProperty);
 PropertyRourter.get("/", handleAllProperty);
 PropertyRourter.get("/:propertyId", handleSingleProperty);
 PropertyRourter.put(
-  "/:propertId",
+  "/:propertyId",
   upload.array("images", 25),
   handleEditProperty
 );

@@ -17,20 +17,20 @@ export async function handleAddProperty(req, res) {
   const propertyData = req.body;
   const owner_id = req.user._id;
 
-  // const validationResult = propertySchema.validate(propertyData);
+  const validationResult = propertySchema.validate(propertyData);
 
-  // if (validationResult.error) {
-  //   console.log("Validation Error:", validationResult.error);
-  //   return res
-  //     .status(422)
-  //     .json(
-  //       responseModel(
-  //         false,
-  //         "Validation failed",
-  //         validationResult.error.details
-  //       )
-  //     );
-  // }
+  if (validationResult.error) {
+    // console.log("Validation Error:", validationResult.error);
+    return res
+      .status(422)
+      .json(
+        responseModel(
+          false,
+          "Validation failed",
+          validationResult.error.details
+        )
+      );
+  }
 
   try {
     let result = await addProperty({
@@ -39,8 +39,6 @@ export async function handleAddProperty(req, res) {
     });
 
     const images_url = [];
-
-    console.log("HERE");
 
     if (req.files.length > 0 && result) {
       for (const file of req.files) {
@@ -95,15 +93,38 @@ export async function handleAllProperty(req, res) {
   }
 }
 
-export async function handleEditProperty(req, res) {
-  const { productId } = req.params;
-  const productData = req.body;
-  const files = req.files;
-
-  const images_url = productData.images || [];
+export async function handleSingleProperty(req, res) {
+  const { propertyId } = req.params;
 
   try {
-    if (files && files.length > 0) {
+    const result = await singleProperty(propertyId);
+
+    res
+      .status(200)
+      .json(
+        responseModel(true, "Single Property retrieved successfully", result)
+      );
+  } catch (error) {
+    res
+      .status(error.status || 500)
+      .json(
+        responseModel(
+          false,
+          error.message || "An error occured. please try again!"
+        )
+      );
+  }
+}
+
+export async function handleEditProperty(req, res) {
+  const { propertyId } = req.params;
+  const propertyData = req.body;
+  const files = req.files;
+
+  const images_url = propertyData.images || [];
+
+  try {
+    if (files && files.length > 0 && files.length < 25) {
       for (const file of req.files) {
         const result = await cloudinary.uploader.upload(file.path, {
           folder: "properties",
@@ -115,14 +136,15 @@ export async function handleEditProperty(req, res) {
       }
     }
 
-    productData.images_url = images_url;
+    propertyData.images_url = images_url;
 
-    const result = await editProperty(productId, productData);
+    const result = await editProperty(propertyId, propertyData);
 
     res
       .status(200)
       .json(responseModel(true, "Property updated successfully", result));
   } catch (error) {
+    console.log(error);
     res
       .status(error.status || 500)
       .json(
@@ -135,37 +157,12 @@ export async function handleEditProperty(req, res) {
 }
 
 export async function handleDeleteProperty(req, res) {
-  const { productId } = req.params;
-
-  try {
-    const result = await deleteProperty(productId);
-
-    res
-      .status(200)
-      .json(responseModel(true, "Property updated successfully", result));
-  } catch (error) {
-    res
-      .status(error.status || 500)
-      .json(
-        responseModel(
-          false,
-          error.message || "An error occured. please try again!"
-        )
-      );
-  }
-}
-
-export async function handleSingleProperty(req, res) {
   const { propertyId } = req.params;
 
   try {
-    const result = await singleProperty(propertyId);
+    await deleteProperty(propertyId);
 
-    res
-      .status(200)
-      .json(
-        responseModel(true, "Single Property retrieved successfully", result)
-      );
+    res.status(203).json(responseModel(true, "Property Deleted successfully"));
   } catch (error) {
     res
       .status(error.status || 500)

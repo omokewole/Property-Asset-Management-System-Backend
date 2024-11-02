@@ -4,9 +4,9 @@ export const propertySchema = Joi.object({
   title: Joi.string().required(),
   street: Joi.string().required(),
   location: Joi.string().required(),
-  attraction: Joi.array().items(Joi.string()),
+  attraction: Joi.string().optional(),
   unit_number: Joi.number().required(),
   description: Joi.string().required(),
-  type: Joi.string().valid("Commercial", "Residential").required(),
-  images: Joi.any().required(),
+  property_type: Joi.string().valid("Commercial", "Residential"),
+  images: Joi.any().required().optional(),
 });

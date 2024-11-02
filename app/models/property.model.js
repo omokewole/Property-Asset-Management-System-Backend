@@ -27,8 +27,8 @@ const propertySchema = mongoose.Schema(
       required: true,
     },
     attraction: {
-      type: Array,
-      required: false,
+      type: String,
+      trim: true,
     },
     images_url: {
       type: Array,
@@ -41,13 +41,14 @@ const propertySchema = mongoose.Schema(
     },
     property_type: {
       type: String,
+      required: true,
       enum: ["Residential", "Commercial"],
     },
   },
   { timestamps: true }
 );
 
-propertySchema.pre("remove", async function (next) {
+propertySchema.pre("deleteOne", async function (next) {
   try {
     await TenantModel.deleteMany({ property_id: this._id });
     next();
