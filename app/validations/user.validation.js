@@ -4,7 +4,7 @@ export const createUserSchema = Joi.object({
 	name: Joi.string().required(),
 	email: Joi.string().email().required(),
 	company: Joi.string().allow(null).empty(""),
-	phone: Joi.string().required(),
+	phone: Joi.string().allow(null).empty(""),
 	password: Joi.string()
 		.min(8)
 		.required("password is required")

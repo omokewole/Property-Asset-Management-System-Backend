@@ -26,7 +26,7 @@ const userSchema = mongoose.Schema(
 		},
 		phone: {
 			type: String,
-			required: true,
+			default: "",
 		},
 		company: {
 			type: String,
