@@ -21,8 +21,8 @@ export default async function generateStats(id) {
   const empty_units = totalUnits - occupied_units;
 
   const stats = {
-    total_tenants: tenantCount + 20,
-    total_properties: propertyCount + 10,
+    total_tenants: tenantCount,
+    total_properties: propertyCount,
     occupied_units,
     empty_units,
   };

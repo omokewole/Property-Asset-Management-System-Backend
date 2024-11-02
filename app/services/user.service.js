@@ -4,6 +4,7 @@ import UserModel from "../models/user.model.js";
 import generateStats from "../utils/getStats.js";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
+
 export async function createUser(newUser) {
 	try {
 		const userExist = await UserModel.findOne({ email: newUser.email });
