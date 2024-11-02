@@ -4,8 +4,11 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import userRouter from "./app/routes/user.route.js";
 import PropertyRourter from "./app/routes/property.route.js";
+import path from "path";
 
 dotenv.config();
+
+export const dir_name = path.dirname(new URL(import.meta.url).pathname);
 
 const app = express();
 app.use(express.json());

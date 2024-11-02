@@ -30,7 +30,7 @@ const propertySchema = mongoose.Schema(
       type: Array,
       required: false,
     },
-    photos_uri: {
+    images_url: {
       type: Array,
       required: true,
     },
@@ -41,7 +41,7 @@ const propertySchema = mongoose.Schema(
     },
     property_type: {
       type: String,
-      enum: ["residential", "commercial"],
+      enum: ["Residential", "Commercial"],
     },
   },
   { timestamps: true }
