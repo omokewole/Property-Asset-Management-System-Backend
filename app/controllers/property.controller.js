@@ -7,10 +7,6 @@ import {
   singleProperty,
 } from "../services/property.service.js";
 import { responseModel } from "../utils/responseModel.js";
-import {
-  propertySchema,
-  editPropertySchema,
-} from "../validations/property.validation.js";
 import { promisify } from "util";
 import fs from "fs";
 
@@ -19,20 +15,6 @@ const unlinkAsync = promisify(fs.unlink);
 export async function handleAddProperty(req, res) {
   const propertyData = req.body;
   const owner_id = req.user._id;
-
-  const validationResult = propertySchema.validate(propertyData);
-
-  if (validationResult.error) {
-    return res
-      .status(422)
-      .json(
-        responseModel(
-          false,
-          "Validation failed",
-          validationResult.error.details
-        )
-      );
-  }
 
   try {
     const images_url = [];
@@ -130,7 +112,7 @@ export async function handleEditProperty(req, res) {
   const propertyData = req.body;
   const files = req.files;
 
-  const images_url = propertyData.images_uri || [];
+  const images_url = propertyData.images_url || [];
 
   try {
     if (files && files.length > 0 && files.length < 12) {
