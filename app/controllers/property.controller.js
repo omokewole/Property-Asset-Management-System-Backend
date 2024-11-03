@@ -7,7 +7,6 @@ import {
   singleProperty,
 } from "../services/property.service.js";
 import { responseModel } from "../utils/responseModel.js";
-import { propertySchema } from "../validations/property.validation.js";
 import { promisify } from "util";
 import fs from "fs";
 
@@ -17,46 +16,38 @@ export async function handleAddProperty(req, res) {
   const propertyData = req.body;
   const owner_id = req.user._id;
 
-  const validationResult = propertySchema.validate(propertyData);
-
-  if (validationResult.error) {
-    // console.log("Validation Error:", validationResult.error);
-    return res
-      .status(422)
-      .json(
-        responseModel(
-          false,
-          "Validation failed",
-          validationResult.error.details
-        )
-      );
-  }
-
   try {
-    let result = await addProperty({
-      ...propertyData,
-      owner_id,
-    });
-
     const images_url = [];
 
-    if (req.files.length > 0 && result) {
+    if (req.files.length >= 4 && req.files.length <= 12) {
       for (const file of req.files) {
-        const result = await cloudinary.uploader.upload(file.path, {
-          folder: "properties",
-        });
+        try {
+          const uploadResult = await cloudinary.uploader.upload(file.path, {
+            folder: "properties",
+          });
 
-        images_url.push(result.secure_url);
-
-        await unlinkAsync(file.path);
+          images_url.push(uploadResult.secure_url);
+        } catch (error) {
+          return res
+            .status(500)
+            .json(
+              responseModel(
+                false,
+                "Image upload failed. Property not saved.",
+                error
+              )
+            );
+        } finally {
+          await unlinkAsync(file.path);
+        }
       }
-
-      result = await editProperty(result._id, {
-        ...propertyData,
-        owner_id,
-        images_url,
-      });
     }
+
+    const result = await addProperty({
+      ...propertyData,
+      owner_id,
+      images_url,
+    });
 
     res
       .status(201)
@@ -121,18 +112,30 @@ export async function handleEditProperty(req, res) {
   const propertyData = req.body;
   const files = req.files;
 
-  const images_url = propertyData.images || [];
+  const images_url = propertyData.images_url || [];
 
   try {
-    if (files && files.length > 0 && files.length < 25) {
+    if (files && files.length > 0 && files.length < 12) {
       for (const file of req.files) {
-        const result = await cloudinary.uploader.upload(file.path, {
-          folder: "properties",
-        });
+        try {
+          const uploadResult = await cloudinary.uploader.upload(file.path, {
+            folder: "properties",
+          });
 
-        images_url.push(result.secure_url);
-
-        await unlinkAsync(file.path);
+          images_url.push(uploadResult.secure_url);
+        } catch (error) {
+          return res
+            .status(500)
+            .json(
+              responseModel(
+                false,
+                "Image upload failed. Property not saved.",
+                error
+              )
+            );
+        } finally {
+          await unlinkAsync(file.path);
+        }
       }
     }
 
@@ -144,7 +147,6 @@ export async function handleEditProperty(req, res) {
       .status(200)
       .json(responseModel(true, "Property updated successfully", result));
   } catch (error) {
-    console.log(error);
     res
       .status(error.status || 500)
       .json(
