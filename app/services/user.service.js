@@ -46,7 +46,7 @@ export async function loginUser(user) {
 		const userData = await UserModel.findOne({ email: user.email });
 
 		if (!userData) {
-			throw new ErrorWithStatus("User not found", 404);
+			throw new ErrorWithStatus("Incorrect email or password", 401);
 		}
 
 		const passwordMatch = await bcrypt.compare(
@@ -55,7 +55,7 @@ export async function loginUser(user) {
 		);
 
 		if (!passwordMatch) {
-			throw new ErrorWithStatus("incorrect email or password", 401);
+			throw new ErrorWithStatus("Incorrect email or password", 401);
 		}
 
 		const { accessToken, refreshToken } = generateJWT(userData);
