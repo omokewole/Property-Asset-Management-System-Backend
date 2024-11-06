@@ -7,30 +7,34 @@ const tenantSchema = mongoose.Schema(
 			ref: "User",
 			required: true,
 		},
-		property_id: {
+
+		assigned_property: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "Property",
 			required: true,
 		},
+
 		name: {
 			type: String,
 			required: true,
 			trim: true,
 		},
-		unit: {
-			type: Number,
-			required: false,
-		},
-		unit_number: {
+
+		assigned_unit: {
 			type: Number,
 			required: true,
 		},
-		contact: {
+
+		phone: {
 			type: String,
 			required: true,
 			trim: true,
 		},
-		move_in_date: {
+		start_date: {
+			type: Date,
+			required: true,
+		},
+		end_date: {
 			type: Date,
 			required: true,
 		},
