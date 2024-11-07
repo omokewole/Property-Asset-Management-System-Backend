@@ -5,7 +5,7 @@ export default function validateMiddleware(schema) {
 		if (schema) {
 			const result = schema.validate(req.body);
 
-			console.log(req.body)
+			console.log(req.body);
 
 			if (result.error) {
 				return res
@@ -14,6 +14,14 @@ export default function validateMiddleware(schema) {
 			}
 
 			next();
+		} else {
+			return res
+				.status(500)
+				.json(
+					responseModel(false, "Validation error", {
+						message: "No schema provided",
+					})
+				);
 		}
 	};
 }
