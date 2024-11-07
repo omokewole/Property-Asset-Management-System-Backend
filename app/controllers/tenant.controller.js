@@ -24,7 +24,6 @@ export async function handleAddTenant(req, res) {
 }
 
 export async function handleAllTenant(req, res) {
-	console.log("HERE??");
 	try {
 		const owner_id = req.user._id;
 		const { property_id, page, limit, order, sortBy } = req.query;
@@ -38,13 +37,10 @@ export async function handleAllTenant(req, res) {
 			sortBy,
 		});
 
-		console.log({ property_id, page, limit, order, sortBy });
-
 		res
 			.status(200)
 			.json(responseModel(true, "Tenants fetched successfully", tenants));
 	} catch (error) {
-		console.log(error);
 		res
 			.status(error.status || 500)
 			.json(responseModel(false, error.message || "An error occured"));

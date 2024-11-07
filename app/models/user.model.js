@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import PropertyModel from "./property.model.js";
 import TenantModel from "./tenant.model.js";
+import MaintenanceModel from "./maintenance.model.js";
 
 const userSchema = mongoose.Schema(
 	{
@@ -60,6 +61,9 @@ userSchema.pre("remove", async function (next) {
 		await PropertyModel.deleteMany({ owner_id: this._id });
 
 		await TenantModel.deleteMany({ owner_id: this._id });
+
+		await MaintenanceModel.deleteMany({ owner_id: this._id });
+		
 		next();
 	} catch (error) {
 		next(error);
