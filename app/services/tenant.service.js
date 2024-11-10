@@ -71,7 +71,9 @@ export async function allTenants({
 		const tenants = await TenantModel.find(filter)
 			.sort(sortOption)
 			.skip(skip)
-			.limit(limit);
+			.limit(limit)
+			.populate("assigned_property");
+			
 		const total_items = await TenantModel.countDocuments(filter);
 		return {
 			meta: {
@@ -149,7 +151,9 @@ export async function editTenant(updatedTenantData, tenantId) {
 
 export async function singleTenant(tenantId) {
 	try {
-		const tenant = await TenantModel.findById(tenantId);
+		const tenant = await TenantModel.findById(tenantId).populate(
+			"assigned_property"
+		);
 
 		if (!tenant) {
 			throw new ErrorWithStatus("Tenant not found", 404);
