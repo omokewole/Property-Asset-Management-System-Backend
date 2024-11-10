@@ -1,6 +1,7 @@
 import PropertyModel from "../models/property.model.js";
 import ErrorWithStatus from "../exceptions/errorWithStatus.js";
 import { extractCloudinaryPublicId } from "../utils/extractCloudinaryPublicId.js";
+import { addNotification } from "./notification.service.js";
 
 export async function addProperty(propertyData) {
 	try {
@@ -17,6 +18,13 @@ export async function addProperty(propertyData) {
 		const propertyObj = await newProperty.save();
 
 		delete propertyObj.__v;
+
+		await addNotification({
+			user_id: propertyData.owner_id,
+			title: "New Property Added",
+			content: `${propertyObj.title} with ${propertyObj.unit_number} units, have been added to your property list`,
+			is_read: false,
+		});
 
 		return propertyObj;
 	} catch (error) {

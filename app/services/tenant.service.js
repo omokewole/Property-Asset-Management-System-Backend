@@ -1,6 +1,7 @@
 import TenantModel from "../models/tenant.model.js";
 import ErrorWithStatus from "../exceptions/errorWithStatus.js";
 import PropertyModel from "../models/property.model.js";
+import { addNotification } from "./notification.service.js";
 export async function addTenant(newTenantData) {
 	try {
 		const [property, occupiedProperty] = await Promise.all([
@@ -11,15 +12,15 @@ export async function addTenant(newTenantData) {
 			}),
 		]);
 
+		if (!property) {
+			throw new ErrorWithStatus("Property not found", 404);
+		}
+
 		if (occupiedProperty) {
 			throw new ErrorWithStatus(
 				"Tenant already assigned to this property and unit",
 				400
 			);
-		}
-
-		if (!property) {
-			throw new ErrorWithStatus("Property not found", 404);
 		}
 
 		if (
@@ -33,10 +34,20 @@ export async function addTenant(newTenantData) {
 		}
 
 		const newTenant = new TenantModel(newTenantData);
-
 		const savedTenant = await newTenant.save();
 
-		return savedTenant;
+		await savedTenant.populate("assigned_property");
+
+		const savedTenantObj = savedTenant.toObject();
+
+		await addNotification({
+			user_id: savedTenantObj.owner_id,
+			title: "New Tenant Added",
+			content: `${savedTenant.name} has been added to Unit ${savedTenant.assigned_unit} in ${savedTenant.assigned_property.title}`,
+			is_read: false,
+		});
+
+		return savedTenantObj;
 	} catch (error) {
 		throw new ErrorWithStatus(
 			error.message || "An error occured",
@@ -73,7 +84,7 @@ export async function allTenants({
 			.skip(skip)
 			.limit(limit)
 			.populate("assigned_property");
-			
+
 		const total_items = await TenantModel.countDocuments(filter);
 		return {
 			meta: {
