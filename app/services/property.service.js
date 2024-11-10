@@ -3,106 +3,130 @@ import ErrorWithStatus from "../exceptions/errorWithStatus.js";
 import { extractCloudinaryPublicId } from "../utils/extractCloudinaryPublicId.js";
 
 export async function addProperty(propertyData) {
-  try {
-    const existerProperty = await PropertyModel.findOne({
-      title: propertyData.title,
-    });
+	try {
+		const existerProperty = await PropertyModel.findOne({
+			title: propertyData.title,
+		});
 
-    if (existerProperty) {
-      throw new ErrorWithStatus("Property with title exist", 400);
-    }
+		if (existerProperty) {
+			throw new ErrorWithStatus("Property with title exist", 400);
+		}
 
-    const newProperty = new PropertyModel(propertyData);
+		const newProperty = new PropertyModel(propertyData);
 
-    const propertyObj = await newProperty.save();
+		const propertyObj = await newProperty.save();
 
-    delete propertyObj.__v;
+		delete propertyObj.__v;
 
-    return propertyObj;
-  } catch (error) {
-    throw new ErrorWithStatus(
-      error.message || "An error occured",
-      error.status || 400
-    );
-  }
+		return propertyObj;
+	} catch (error) {
+		throw new ErrorWithStatus(
+			error.message || "An error occured",
+			error.status || 400
+		);
+	}
 }
 
-export async function allProperties(ownerId) {
-  try {
-    const properties = await PropertyModel.find({ owner_id: ownerId });
+export async function allProperties({
+	owner_id,
+	page = 1,
+	limit = 12,
+	search = "",
+}) {
+	try {
+		const skip = (page - 1) * limit;
 
-    return properties;
-  } catch (error) {
-    throw new ErrorWithStatus(
-      error.message || "An error occured",
-      error.status || 400
-    );
-  }
+		const filter = {
+			owner_id,
+		};
+
+		if (search) {
+			filter.search = search;
+		}
+
+		const properties = await PropertyModel.find(filter).skip(skip).limit(limit);
+
+		const total_items = (await PropertyModel.countDocuments(filter)) || 0;
+		const total_page = Math.ceil(total_items / limit) || 0;
+		const current_page = page;
+		const has_more = current_page < total_page;
+
+		const meta = {
+			current_page,
+			total_page,
+			has_more,
+		};
+
+		return { properties, meta };
+	} catch (error) {
+		throw new ErrorWithStatus(
+			error.message || "An error occured",
+			error.status || 400
+		);
+	}
 }
 
 export async function singleProperty(propertyId) {
-  try {
-    const property = await PropertyModel.findById(propertyId);
+	try {
+		const property = await PropertyModel.findById(propertyId);
 
-    if (!property) {
-      throw new ErrorWithStatus("Property not found", 404);
-    }
+		if (!property) {
+			throw new ErrorWithStatus("Property not found", 404);
+		}
 
-    return property;
-  } catch (error) {
-    console.log(error);
-    throw new ErrorWithStatus(
-      error.message || "An error occured",
-      error.status || 400
-    );
-  }
+		return property;
+	} catch (error) {
+		console.log(error);
+		throw new ErrorWithStatus(
+			error.message || "An error occured",
+			error.status || 400
+		);
+	}
 }
 
 export async function editProperty(propertyId, propertyData) {
-  try {
-    const property = await PropertyModel.findById(propertyId);
+	try {
+		const property = await PropertyModel.findById(propertyId);
 
-    if (!property) {
-      throw new ErrorWithStatus("Property not found", 404);
-    }
+		if (!property) {
+			throw new ErrorWithStatus("Property not found", 404);
+		}
 
-    Object.assign(property, propertyData);
+		Object.assign(property, propertyData);
 
-    await property.save();
+		await property.save();
 
-    return property;
-  } catch (error) {
-    console.log(error);
-    throw new ErrorWithStatus(
-      error.message || "An error occured",
-      error.status || 400
-    );
-  }
+		return property;
+	} catch (error) {
+		console.log(error);
+		throw new ErrorWithStatus(
+			error.message || "An error occured",
+			error.status || 400
+		);
+	}
 }
 
 export async function deleteProperty(propertyId) {
-  try {
-    const property = await PropertyModel.findById(propertyId);
+	try {
+		const property = await PropertyModel.findById(propertyId);
 
-    if (!property) {
-      throw new ErrorWithStatus("Property not found", 404);
-    }
+		if (!property) {
+			throw new ErrorWithStatus("Property not found", 404);
+		}
 
-    if (property.images && property.images.length > 0) {
-      for (const imageUrl of property.images) {
-        const publicId = extractCloudinaryPublicId(imageUrl);
-        Â;
-        await cloudinary.uploader.destroy(publicId);
-      }
-    }
+		if (property.images && property.images.length > 0) {
+			for (const imageUrl of property.images) {
+				const publicId = extractCloudinaryPublicId(imageUrl);
+				Â;
+				await cloudinary.uploader.destroy(publicId);
+			}
+		}
 
-    await property.deleteOne({ _id: propertyId });
-
-  } catch (error) {
-
-    throw new ErrorWithStatus(
-      error.message || "An error occured",
-      error.status || 400
-    );
-  }
+		await property.deleteOne({ _id: propertyId });
+	} catch (error) {
+		throw new ErrorWithStatus(
+			error.message || "An error occured",
+			error.status || 400
+		);
+	}
 }
