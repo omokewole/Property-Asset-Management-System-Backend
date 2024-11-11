@@ -1,5 +1,24 @@
-import { allNotifications } from "../services/notification.service.js";
+import {
+	allNotifications,
+	addNotification,
+} from "../services/notification.service.js";
 import { responseModel } from "../utils/responseModel.js";
+
+export async function addNotificationHandler({
+	user_id,
+	page,
+	title,
+	content,
+}) {
+	const newNotification = await addNotification({
+		user_id,
+		page,
+		title,
+		content,
+	});
+
+	console.log(newNotification);
+}
 
 export async function handleAllNotification(req, res) {
 	try {

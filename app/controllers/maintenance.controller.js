@@ -6,6 +6,7 @@ import {
 	singleMaintenance,
 } from "../services/maintenance.service.js";
 import { responseModel } from "../utils/responseModel.js";
+import { addNotificationHandler } from "./notification.controller.js";
 
 export async function handleCreateMaintenance(req, res) {
 	try {
@@ -15,6 +16,12 @@ export async function handleCreateMaintenance(req, res) {
 		const newMaintenanceData = await createMaintenance({
 			...newMaintenanceInfo,
 			owner_id,
+		});
+
+		await addNotificationHandler({
+			user_id: newMaintenanceData.owner_id,
+			title: "New Maintenance Request Created",
+			content: `A new maintenance request has been submitted for Unit {2B} regarding ${newMaintenanceData.facility}`,
 		});
 
 		res
@@ -27,6 +34,7 @@ export async function handleCreateMaintenance(req, res) {
 				)
 			);
 	} catch (error) {
+		console.log(error);
 		res
 			.status(error.status || 500)
 			.json(responseModel(false, error.message || "An error occured!"));

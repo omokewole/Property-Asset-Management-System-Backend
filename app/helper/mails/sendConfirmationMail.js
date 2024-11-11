@@ -1,5 +1,5 @@
 import createMaiTransporter from "./createEmailTransporter.js";
-import ErrorWithStatus from "../exceptions/errorWithStatus.js";
+import ErrorWithStatus from "../../exceptions/errorWithStatus.js";
 
 export default async function sendConfirmationMail(user) {
 	const transporter = createMaiTransporter();

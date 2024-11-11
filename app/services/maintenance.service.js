@@ -1,21 +1,12 @@
 import MaintenanceModel from "../models/maintenance.model.js";
 import ErrorWithStatus from "../exceptions/errorWithStatus.js";
-import { addNotification } from "./notification.service.js";
 
 export async function createMaintenance(newMaintenanceData) {
 	try {
 		const newMaintenance = new MaintenanceModel(newMaintenanceData);
 		const savedMaintenance = await newMaintenance.save();
 
-		const savedMaintenanceObj = savedMaintenance.toObject();
-
-		await addNotification({
-			user_id: savedMaintenanceObj.owner_id,
-			title: "New Maintenance Request Created",
-			content: `A new maintenance request has been submitted for Unit {2B} regarding ${savedMaintenanceObj.facility}`,
-			is_read: false,
-		});
-		return savedMaintenanceObj;
+		return savedMaintenance;
 	} catch (error) {
 		throw new ErrorWithStatus(
 			error.message || "An error occured",

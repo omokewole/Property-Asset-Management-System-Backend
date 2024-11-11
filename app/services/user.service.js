@@ -4,6 +4,7 @@ import UserModel from "../models/user.model.js";
 import generateStats from "../utils/getStats.js";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
+import NotificationModel from "../models/notification.model.js";
 
 export async function createUser(newUser) {
 	try {
@@ -96,6 +97,13 @@ export async function user(id) {
 		delete userObj.password;
 		delete userObj.email_token;
 		delete userObj.email_token_expires;
+
+		const unreadNotificationsCount = await NotificationModel.countDocuments({
+			user_id: userObj._id,
+			is_read: false,
+		});
+
+		userObj.unread_notifications = unreadNotificationsCount > 0;
 
 		return { user: userObj, stats };
 	} catch (error) {
