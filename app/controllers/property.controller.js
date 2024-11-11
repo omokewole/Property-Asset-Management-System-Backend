@@ -1,3 +1,5 @@
+import fs from "fs";
+import { promisify } from "util";
 import cloudinary from "../configs/cloudinary.js";
 import {
 	addProperty,
@@ -7,8 +9,7 @@ import {
 	singleProperty,
 } from "../services/property.service.js";
 import { responseModel } from "../utils/responseModel.js";
-import { promisify } from "util";
-import fs from "fs";
+import { addNotificationHandler } from "./notification.controller.js";
 
 const unlinkAsync = promisify(fs.unlink);
 
@@ -47,6 +48,13 @@ export async function handleAddProperty(req, res) {
 			...propertyData,
 			owner_id,
 			images_url,
+		});
+
+		await addNotificationHandler({
+			user_id: result.owner_id,
+			title: "New Property Added",
+			content: `${result.title} with ${result.unit_number} units, have been added to your property list`,
+			is_read: false,
 		});
 
 		res

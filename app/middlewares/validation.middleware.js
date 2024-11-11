@@ -5,8 +5,6 @@ export default function validateMiddleware(schema) {
 		if (schema) {
 			const result = schema.validate(req.body);
 
-			console.log(req.body);
-
 			if (result.error) {
 				return res
 					.status(422)

@@ -6,6 +6,7 @@ export async function addNotification(newNotificationData) {
 		const newNotification = new NotificationModel(newNotificationData);
 
 		await newNotification.save();
+        
 		return newNotification;
 	} catch (error) {
 		console.log(error);
