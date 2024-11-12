@@ -5,6 +5,7 @@ import generateStats from "../utils/getStats.js";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import NotificationModel from "../models/notification.model.js";
+import SettingModel from "../models/settings.model.js";
 
 export async function createUser(newUser) {
 	try {
@@ -25,11 +26,17 @@ export async function createUser(newUser) {
 
 		const userObj = savedUser.toObject();
 
+		await new SettingModel({ user_id: userObj._id });
+
+		const userSettings = await SettingModel.findOne({ user_id: userObj._id });
+
 		delete userObj.__v;
 		delete userObj.password;
 		delete userObj.email_token_expires;
 
 		const stats = await generateStats(userObj._id);
+
+		userObj.settinga = userSettings;
 
 		return {
 			access_token: accessToken,
@@ -65,10 +72,14 @@ export async function loginUser(user) {
 
 		const userObj = userData.toObject();
 
+		const userSettings = await SettingModel.find({ user_id: userObj._id });
+
 		delete userObj.password;
 		delete userObj.__v;
 		delete userObj.email_token;
 		delete userObj.email_token_expires;
+
+		userObj.settinga = userSettings;
 
 		return {
 			access_token: accessToken,
@@ -93,16 +104,19 @@ export async function user(id) {
 
 		const stats = await generateStats(userData._id);
 
-		delete userObj.__v;
-		delete userObj.password;
-		delete userObj.email_token;
-		delete userObj.email_token_expires;
-
 		const unreadNotificationsCount = await NotificationModel.countDocuments({
 			user_id: userObj._id,
 			is_read: false,
 		});
 
+		const userSettings = await SettingModel.findOne({ user_id: userObj._id });
+
+		delete userObj.__v;
+		delete userObj.password;
+		delete userObj.email_token;
+		delete userObj.email_token_expires;
+
+		userObj.settings = userSettings;
 		userObj.unread_notifications = unreadNotificationsCount > 0;
 
 		return { user: userObj, stats };

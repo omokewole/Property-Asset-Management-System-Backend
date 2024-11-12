@@ -6,8 +6,7 @@ import {
 	deleteTenant,
 } from "../services/tenant.service.js";
 import { responseModel } from "../utils/responseModel.js";
-import { addNotificationHandler } from './notification.controller.js';
-
+import { addNotificationHandler } from "./notification.controller.js";
 
 export async function handleAddTenant(req, res) {
 	try {
@@ -17,11 +16,14 @@ export async function handleAddTenant(req, res) {
 		const newTenant = await addTenant({ ...newTenantData, owner_id });
 
 		await addNotificationHandler({
-			user_id: savedTenantObj.owner_id,
+			user_id: owner_id,
 			title: "New Tenant Added",
 			content: `${newTenant.name} has been added to Unit ${newTenant.assigned_unit} in ${newTenant.assigned_property.title}`,
 			is_read: false,
+			path: "tenants",
+			ref: newTenant._id,
 		});
+
 		res
 			.status(201)
 			.json(responseModel(true, "Tenant added successfully", newTenant));

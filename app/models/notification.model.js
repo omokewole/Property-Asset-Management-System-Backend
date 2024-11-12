@@ -17,6 +17,15 @@ const notificationSchema = mongoose.Schema(
 			required: true,
 			trim: true,
 		},
+		path: {
+			type: String,
+			enum: ["properties", "tenants", "maintenances", "user"],
+			required: true,
+		},
+		ref: {
+			type: mongoose.Schema.Types.ObjectId,
+			required: true,
+		},
 		is_read: {
 			type: Boolean,
 			default: false,
