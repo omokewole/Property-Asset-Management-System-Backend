@@ -23,8 +23,8 @@ export async function addTenant(newTenantData) {
 		}
 
 		if (
-			newTenantData.assigned_unit < 1 ||
-			newTenantData.assigned_unit > property.unit_number
+			Number(newTenantData.assigned_unit) < 1 ||
+			Number(newTenantData.assigned_unit) > Number(property.unit_number)
 		) {
 			throw new ErrorWithStatus(
 				`Assigned unit must be between 1 and ${property.unit_number}`,
@@ -120,8 +120,8 @@ export async function editTenant(updatedTenantData, tenantId) {
 			}
 
 			if (
-				updatedTenantData.assigned_unit < 1 ||
-				updatedTenantData.assigned_unit > property.unit_number
+				Number(updatedTenantData.assigned_unit) < 1 ||
+				Number(updatedTenantData.assigned_unit) > Number(property.unit_number)
 			) {
 				throw new ErrorWithStatus(
 					`Assigned unit must be between 1 and ${property.unit_number}`,

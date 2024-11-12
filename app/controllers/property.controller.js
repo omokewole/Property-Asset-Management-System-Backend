@@ -51,10 +51,11 @@ export async function handleAddProperty(req, res) {
 		});
 
 		await addNotificationHandler({
-			user_id: result.owner_id,
+			user_id: owner_id,
 			title: "New Property Added",
 			content: `${result.title} with ${result.unit_number} units, have been added to your property list`,
-			is_read: false,
+			path: "properties",
+			ref: result._id,
 		});
 
 		res

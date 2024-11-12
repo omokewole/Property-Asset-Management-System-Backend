@@ -1,6 +1,8 @@
 import PropertyModel from "../models/property.model.js";
 import ErrorWithStatus from "../exceptions/errorWithStatus.js";
 import { extractCloudinaryPublicId } from "../utils/extractCloudinaryPublicId.js";
+import { updateUnitAvailability } from "../utils/getUnits.js";
+import TenantModel from "../models/tenant.model.js";
 
 export async function addProperty(propertyData) {
 	try {
@@ -12,13 +14,42 @@ export async function addProperty(propertyData) {
 			throw new ErrorWithStatus("Property with title exist", 400);
 		}
 
+		const unit_number_str = propertyData.unit_number;
+
+		if (unit_number_str && typeof unit_number_str === "string") {
+			const unitValue = Number(unit_number_str);
+
+			if (isNaN(unitValue)) {
+				throw new ErrorWithStatus("Invalid unit number", 400);
+			}
+
+			propertyData.unit_number = unitValue;
+		}
+
 		const newProperty = new PropertyModel(propertyData);
 
-		const propertyObj = await newProperty.save();
+		const savedProperty = await newProperty.save();
 
-		delete propertyObj.__v;
+		const tenants = await TenantModel.find({ property_id: savedProperty._id });
 
-		return propertyObj;
+		const occupied_units = tenants.map((tenant) => tenant.assigned_unit);
+
+		const units = updateUnitAvailability(
+			{
+				unit_number: savedProperty.unit_number,
+				occupied_units,
+			},
+			null
+		);
+
+		const property = {
+			...savedProperty.toObject(),
+			avalable_units: units.available_units,
+			occupied_units: units.occupied_units,
+			all_units: units.all_units,
+		};
+
+		return property;
 	} catch (error) {
 		throw new ErrorWithStatus(
 			error.message || "An error occured",
@@ -41,7 +72,7 @@ export async function allProperties({
 		};
 
 		if (search) {
-			filter.search = search;
+			filter.title = { $regex: search, $options: "i" };
 		}
 
 		const properties = await PropertyModel.find(filter).skip(skip).limit(limit);
@@ -51,14 +82,43 @@ export async function allProperties({
 		const current_page = page;
 		const has_more = current_page < total_page;
 
+		const tenants = await TenantModel.find({
+			assigned_property: { $in: properties.map((p) => p._id) },
+		}).lean();
+
+		const updatedProperties = await Promise.all(
+			properties.map(async (property) => {
+				const occupiedUnits = tenants
+					.filter(
+						(tenant) =>
+							tenant.assigned_property.toString() === property._id.toString()
+					)
+					.map((tenant) => tenant.assigned_unit);
+
+				const units = updateUnitAvailability({
+					unit_number: property.unit_number,
+					occupied_units: occupiedUnits,
+				});
+
+				const updatedProp = property.toObject();
+
+				updatedProp.available_units = units.available_units;
+				updatedProp.occupied_units = units.occupied_units;
+				updatedProp.all_units = units.all_units;
+
+				return updatedProp;
+			})
+		);
+
 		const meta = {
 			current_page,
 			total_page,
 			has_more,
 		};
 
-		return { properties, meta };
+		return { properties: updatedProperties, meta };
 	} catch (error) {
+		console.log(error);
 		throw new ErrorWithStatus(
 			error.message || "An error occured",
 			error.status || 400
@@ -68,17 +128,35 @@ export async function allProperties({
 
 export async function singleProperty(propertyId) {
 	try {
-		const property = await PropertyModel.findById(propertyId);
+		const savedProperty = await PropertyModel.findById(propertyId);
 
-		if (!property) {
+		if (!savedProperty) {
 			throw new ErrorWithStatus("Property not found", 404);
 		}
 
+		const tenants = await TenantModel.find({
+			assigned_property: savedProperty._id,
+		});
+
+		const occupied_units = tenants.map((tenant) => tenant.assigned_unit);
+
+		const units = updateUnitAvailability({
+			unit_number: savedProperty.unit_number,
+			occupied_units,
+		});
+
+		const property = {
+			...savedProperty.toObject(),
+			available_units: units.available_units,
+			occupied_units: units.occupied_units,
+			all_units: units.all_units,
+		};
+
 		return property;
 	} catch (error) {
-		console.log(error);
+		console.log("Error fetching single property:", error);
 		throw new ErrorWithStatus(
-			error.message || "An error occured",
+			error.message || "An error occurred while retrieving the property",
 			error.status || 400
 		);
 	}
@@ -90,6 +168,18 @@ export async function editProperty(propertyId, propertyData) {
 
 		if (!property) {
 			throw new ErrorWithStatus("Property not found", 404);
+		}
+
+		const unit_number_str = propertyData.unit_number;
+
+		if (unit_number_str && typeof unit_number_str === "string") {
+			const unitValue = Number(unit_number_str);
+
+			if (isNaN(unitValue)) {
+				throw new ErrorWithStatus("Invalid unit number", 400);
+			}
+
+			propertyData.unit_number = unitValue;
 		}
 
 		Object.assign(property, propertyData);

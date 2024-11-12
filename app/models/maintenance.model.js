@@ -13,8 +13,19 @@ const maintenanceSchema = mongoose.Schema(
 			required: true,
 		},
 
-		maintenance_fee: {
+		property: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "Property",
+			required: true,
+		},
+
+		unit: {
 			type: String,
+			trim: true,
+			required: true,
+		},
+		maintenance_fee: {
+			type: Number,
 			required: true,
 			trim: true,
 		},

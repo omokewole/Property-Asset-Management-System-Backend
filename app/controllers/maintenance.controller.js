@@ -21,7 +21,9 @@ export async function handleCreateMaintenance(req, res) {
 		await addNotificationHandler({
 			user_id: newMaintenanceData.owner_id,
 			title: "New Maintenance Request Created",
-			content: `A new maintenance request has been submitted for Unit {2B} regarding ${newMaintenanceData.facility}`,
+			content: `A new maintenance request has been submitted for Unit ${newMaintenanceData.unit} regarding ${newMaintenanceData.facility}`,
+			path: "maintenances",
+			ref: newMaintenanceData._id,
 		});
 
 		res
