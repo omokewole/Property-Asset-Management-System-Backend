@@ -183,3 +183,43 @@ export async function updateUser(userInfo, userId) {
 		throw new ErrorWithStatus(error.message, error.status || 500);
 	}
 }
+
+export async function changePassword({ currentPassword, newPassword, userId }) {
+	try {
+		const user = await UserModel.findById(userId);
+
+		if (!user) {
+			throw new ErrorWithStatus("User not found", 404);
+		}
+
+		const isTheSamePassword = await bcrypt.compare(newPassword, user.password);
+
+		if (isTheSamePassword) {
+			throw new ErrorWithStatus(
+				"Please use difference password from your current password"
+			);
+		}
+
+		const isPasswordCorrect = await bcrypt.compare(
+			currentPassword,
+			user.password
+		);
+
+		if (!isPasswordCorrect) {
+			throw new ErrorWithStatus("Current password is incorrect", 401);
+		}
+
+		const newHashedPassword = await bcrypt.hash(newPassword, 10);
+
+		user.password = newHashedPassword;
+
+		await user.save();
+
+		return user;
+	} catch (error) {
+		throw new ErrorWithStatus(
+			error.message || "An error occured",
+			error.status || 500
+		);
+	}
+}

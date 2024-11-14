@@ -8,6 +8,7 @@ export async function addProperty(propertyData) {
 	try {
 		const existerProperty = await PropertyModel.findOne({
 			title: propertyData.title,
+			owner_id: propertyData.owner_id,
 		});
 
 		if (existerProperty) {

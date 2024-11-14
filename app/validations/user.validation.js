@@ -54,3 +54,8 @@ export const updateUserSchema = Joi.object({
 		})
 		.optional(),
 });
+
+export const changePasswordSchema = Joi.object({
+	new_password: Joi.string().required(),
+	current_password: Joi.string().required(),
+});

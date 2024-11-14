@@ -4,6 +4,7 @@ import {
 	user,
 	verifyUserEmail,
 	updateUser,
+	changePassword,
 } from "../services/user.service.js";
 import { responseModel } from "../utils/responseModel.js";
 import { refreshToken } from "../utils/generateToken.js";
@@ -145,5 +146,24 @@ export async function handleUpdateUser(req, res) {
 		res
 			.status(error.status || 500)
 			.json(responseModel(false, error.message || "An error occured", null));
+	}
+}
+
+export async function handleChangePassword(req, res) {
+	try {
+		const { current_password, new_password } = req.body;
+		const userId = req.user._id;
+
+		await changePassword({
+			currentPassword: current_password,
+			newPassword: new_password,
+			userId,
+		});
+
+		res.status(200).json(responseModel(true, "Password successfully changed!"));
+	} catch (error) {
+		res
+			.status(error.status || 500)
+			.json(responseModel(false, error.message || "An error occured!"));
 	}
 }

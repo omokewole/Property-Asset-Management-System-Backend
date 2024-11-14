@@ -8,6 +8,7 @@ import {
 	handleRefreshToken,
 	handleVerifyUser,
 	handleUpdateUser,
+	handleChangePassword,
 } from "../controllers/user.controller.js";
 import {
 	createUserSchema,
@@ -15,6 +16,7 @@ import {
 	refreshTokenSchema,
 	verifyUserSchema,
 	updateUserSchema,
+	changePasswordSchema,
 } from "../validations/user.validation.js";
 import upload from "../configs/multer.js";
 
@@ -44,5 +46,11 @@ userRouter.put(
 	upload.single("image"),
 	validateMiddleware(updateUserSchema),
 	handleUpdateUser
+);
+userRouter.post(
+	"/change_password",
+	authMiddleware,
+	validateMiddleware(changePasswordSchema),
+	handleChangePassword
 );
 export default userRouter;
