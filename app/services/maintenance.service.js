@@ -90,7 +90,8 @@ export async function allMaintenances({
 		const maintenances = await MaintenanceModel.find(filter)
 			.sort(sortOption)
 			.skip(skip)
-			.limit(limit);
+			.limit(limit)
+			.populate("property");
 		const total_items = await MaintenanceModel.countDocuments(filter);
 
 		return {
