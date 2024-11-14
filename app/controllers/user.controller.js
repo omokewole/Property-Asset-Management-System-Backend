@@ -3,11 +3,17 @@ import {
 	loginUser,
 	user,
 	verifyUserEmail,
+	updateUser,
 } from "../services/user.service.js";
 import { responseModel } from "../utils/responseModel.js";
 import { refreshToken } from "../utils/generateToken.js";
 import sendVerificationMail from "../helper/mails/sendVerificationMail.js";
 import sendConfirmationMail from "../helper/mails/sendConfirmationMail.js";
+import cloudinary from "../configs/cloudinary.js";
+import { promisify } from "util";
+import fs from "fs";
+
+const unlinkAsync = promisify(fs.unlink);
 
 export async function handleCreateUser(req, res) {
 	try {
@@ -95,6 +101,46 @@ export async function handleRefreshToken(req, res) {
 				refresh_token: newRefreshToken,
 			})
 		);
+	} catch (error) {
+		res
+			.status(error.status || 500)
+			.json(responseModel(false, error.message || "An error occured", null));
+	}
+}
+
+export async function handleUpdateUser(req, res) {
+	try {
+		const userInfo = req.body;
+		const userId = req.user._id;
+		const file = req.file;
+
+		if (file) {
+			try {
+				const uploadResult = await cloudinary.uploader.upload(file.path, {
+					folder: "profile_photo",
+				});
+
+				userInfo.image_url = uploadResult.secure_url;
+			} catch (error) {
+				return res
+					.status(500)
+					.json(
+						responseModel(
+							false,
+							"Image upload failed. Property not saved.",
+							error
+						)
+					);
+			} finally {
+				await unlinkAsync(file.path);
+			}
+		}
+
+		const result = await updateUser(userInfo, userId);
+
+		res
+			.status(200)
+			.json(responseModel(true, "User updated successfully", result));
 	} catch (error) {
 		res
 			.status(error.status || 500)

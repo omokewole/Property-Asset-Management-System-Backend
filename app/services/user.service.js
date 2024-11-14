@@ -155,3 +155,31 @@ export async function verifyUserEmail(emailToken) {
 		throw new ErrorWithStatus(error.message, error.status || 500);
 	}
 }
+
+export async function updateUser(userInfo, userId) {
+	try {
+		const user = await UserModel.findById(userId);
+
+		if (!user) {
+			throw new ErrorWithStatus("User not found", 404);
+		}
+
+		if (userInfo.email && userInfo.email !== user.email) {
+			const existingUser = await UserModel.findOne({ email: userInfo.email });
+
+			if (existingUser) {
+				throw new ErrorWithStatus("Email already exists", 400);
+			}
+		}
+
+		const updatedUser = await UserModel.findOneAndUpdate(
+			{ _id: userId },
+			userInfo,
+			{ new: true }
+		);
+
+		return updatedUser;
+	} catch (error) {
+		throw new ErrorWithStatus(error.message, error.status || 500);
+	}
+}
