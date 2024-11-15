@@ -38,11 +38,11 @@ export default async function generateStats(id) {
 
 		const totalUnits = totalUnitsResult[0]?.totalUnits || 0;
 		const empty_units = totalUnits - tenantCount;
-		const total_maintenance_cost = totalMaintenanceCost[0]?.totalMaintenanceCost || 0;
-
+		const total_maintenance_cost =
+			totalMaintenanceCost[0]?.totalMaintenanceCost || 0;
 
 		const occupancyRate = `${
-			totalUnits > 0 ? (tenantCount / totalUnits) * 100 : 0
+			totalUnits > 0 ? (tenantCount / totalUnits).toFixed(4) * 100 : 0
 		}%`;
 
 		const stats = {
