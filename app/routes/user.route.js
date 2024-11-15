@@ -9,6 +9,7 @@ import {
 	handleVerifyUser,
 	handleUpdateUser,
 	handleChangePassword,
+	handleUpdateSettings,
 } from "../controllers/user.controller.js";
 import {
 	createUserSchema,
@@ -17,6 +18,7 @@ import {
 	verifyUserSchema,
 	updateUserSchema,
 	changePasswordSchema,
+	updateSettingsSchema,
 } from "../validations/user.validation.js";
 import upload from "../configs/multer.js";
 
@@ -52,5 +54,11 @@ userRouter.post(
 	authMiddleware,
 	validateMiddleware(changePasswordSchema),
 	handleChangePassword
+);
+userRouter.patch(
+	"/settings",
+	authMiddleware,
+	validateMiddleware(updateSettingsSchema),
+	handleUpdateSettings
 );
 export default userRouter;

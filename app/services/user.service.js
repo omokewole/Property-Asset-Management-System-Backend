@@ -26,9 +26,9 @@ export async function createUser(newUser) {
 
 		const userObj = savedUser.toObject();
 
-		await new SettingModel({ user_id: userObj._id });
+		const defaultSettings = await new SettingModel({ user_id: userObj._id });
 
-		const userSettings = await SettingModel.findOne({ user_id: userObj._id });
+		await defaultSettings.save();
 
 		delete userObj.__v;
 		delete userObj.password;
@@ -36,7 +36,7 @@ export async function createUser(newUser) {
 
 		const stats = await generateStats(userObj._id);
 
-		userObj.settinga = userSettings;
+		userObj.settinga = defaultSettings;
 
 		return {
 			access_token: accessToken,
@@ -216,6 +216,34 @@ export async function changePassword({ currentPassword, newPassword, userId }) {
 		await user.save();
 
 		return user;
+	} catch (error) {
+		throw new ErrorWithStatus(
+			error.message || "An error occured",
+			error.status || 500
+		);
+	}
+}
+
+export async function updatedSettings({ key, value, userId }) {
+	try {
+		const user = await UserModel.findById(userId);
+
+		if (!user) {
+			throw new ErrorWithStatus("User not found", 404);
+		}
+		const settings = await SettingModel.findOneAndUpdate(
+			{
+				user_id: userId,
+			},
+			{ [key]: value },
+			{ new: true, runValidators: true }
+		);
+
+		if (!settings) {
+			throw new Error(`Settings for user ID ${userId} not found.`);
+		}
+
+		return { [key]: settings[key] };
 	} catch (error) {
 		throw new ErrorWithStatus(
 			error.message || "An error occured",

@@ -59,3 +59,21 @@ export const changePasswordSchema = Joi.object({
 	new_password: Joi.string().required(),
 	current_password: Joi.string().required(),
 });
+
+export const updateSettingsSchema = Joi.object({
+	key: Joi.string()
+		.valid(
+			"notification",
+			"property_management",
+			"security_options",
+			"product_update",
+			"data_management"
+		)
+		.required()
+		.messages({
+			"any.only":
+				"The key must be one of the following: notification, property_management",
+			"any.required": "The key is required",
+		}),
+	value: Joi.boolean().required(), // Define this based on the expected type of value
+});
