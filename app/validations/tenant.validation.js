@@ -12,4 +12,6 @@ export const tenantValidationSchema = Joi.object({
 		}),
 	start_date: Joi.date().required(),
 	end_date: Joi.date().required(),
+	rent_paid: Joi.number().required(),
+	balance: Joi.number(),
 });
