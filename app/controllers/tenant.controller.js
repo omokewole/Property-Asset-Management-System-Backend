@@ -28,6 +28,7 @@ export async function handleAddTenant(req, res) {
 			.status(201)
 			.json(responseModel(true, "Tenant added successfully", newTenant));
 	} catch (error) {
+		console.log(error)
 		res
 			.status(error.status || 500)
 			.json(responseModel(false, error.message || "An error occured"));
