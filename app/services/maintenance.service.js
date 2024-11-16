@@ -5,22 +5,6 @@ export async function createMaintenance(newMaintenanceData) {
 	try {
 		const newMaintenance = new MaintenanceModel(newMaintenanceData);
 
-		const maintenance_fee_str = newMaintenanceData.maintenance_fee;
-
-		if (maintenance_fee_str && typeof maintenance_fee_str === "string") {
-			const maintenance_fee = maintenance_fee_str.replace(/,/g, "");
-
-			const feeValue = Number(maintenance_fee);
-
-			if (isNaN(feeValue)) {
-				throw new Error("Invalid maintenance fee value");
-			}
-
-			newMaintenance.maintenance_fee = feeValue;
-		} else {
-			throw new Error("Maintenance fee is required");
-		}
-
 		const savedMaintenance = await newMaintenance.save();
 
 		return savedMaintenance;
@@ -38,22 +22,6 @@ export async function updateMaintenance(updatedMaintenanceData, maintenanceId) {
 
 		if (!maintenanceInfo) {
 			throw new ErrorWithStatus("Maintenance not found!", 404);
-		}
-
-		const maintenance_fee_str = updatedMaintenanceData.maintenance_fee;
-
-		if (maintenance_fee_str && typeof maintenance_fee_str === "string") {
-			const maintenance_fee = maintenance_fee_str.replace(/,/g, "");
-
-			const feeValue = Number(maintenance_fee);
-
-			if (isNaN(feeValue)) {
-				throw new Error("Invalid maintenance fee value");
-			}
-
-			updatedMaintenanceData.maintenance_fee = feeValue;
-		} else {
-			throw new Error("Maintenance fee is required");
 		}
 
 		Object.assign(maintenanceInfo, updatedMaintenanceData);

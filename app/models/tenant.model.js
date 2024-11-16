@@ -24,6 +24,13 @@ const tenantSchema = mongoose.Schema(
 			type: Number,
 			required: true,
 		},
+		rent_paid: {
+			type: Number,
+			required: true,
+		},
+		balance: {
+			type: Number,
+		},
 
 		phone: {
 			type: String,
