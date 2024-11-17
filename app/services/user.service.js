@@ -1,11 +1,13 @@
 import ErrorWithStatus from "../exceptions/errorWithStatus.js";
 import { generateJWT } from "../utils/generateToken.js";
 import UserModel from "../models/user.model.js";
-import generateStats from "../utils/getStats.js";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import NotificationModel from "../models/notification.model.js";
 import SettingModel from "../models/settings.model.js";
+import PropertyModel from "../models/property.model.js";
+import TenantModel from "../models/tenant.model.js";
+import MaintenanceModel from "../models/maintenance.model.js";
 
 export async function createUser(newUser) {
 	try {
@@ -34,7 +36,7 @@ export async function createUser(newUser) {
 		delete userObj.password;
 		delete userObj.email_token_expires;
 
-		const stats = await generateStats(userObj._id);
+		const stats = await userStats(userObj._id);
 
 		userObj.settinga = defaultSettings;
 
@@ -68,7 +70,7 @@ export async function loginUser(user) {
 
 		const { accessToken, refreshToken } = generateJWT(userData);
 
-		const stats = await generateStats(userData._id);
+		const stats = await userStats(userData._id);
 
 		const userObj = userData.toObject();
 
@@ -102,7 +104,7 @@ export async function user(id) {
 
 		const userObj = userData.toObject();
 
-		const stats = await generateStats(userData._id);
+		const stats = await userStats(userData._id);
 
 		const unreadNotificationsCount = await NotificationModel.countDocuments({
 			user_id: userObj._id,
@@ -249,5 +251,140 @@ export async function updatedSettings({ key, value, userId }) {
 			error.message || "An error occured",
 			error.status || 500
 		);
+	}
+}
+
+export default async function userStats(id) {
+	try {
+		const [
+			tenantCount,
+			propertyCount,
+			maintenanceCount,
+			overdueMaintenance,
+			completedMaintenance,
+			scheduleMaintenance,
+			totalUnitsResult,
+			totalMaintenanceCost,
+		] = await Promise.all([
+			TenantModel.countDocuments({ owner_id: id }),
+			PropertyModel.countDocuments({ owner_id: id }),
+			MaintenanceModel.countDocuments({ owner_id: id }),
+			MaintenanceModel.countDocuments({ owner_id: id, status: "overdue" }),
+			MaintenanceModel.countDocuments({ owner_id: id, status: "completed" }),
+			MaintenanceModel.countDocuments({ owner_id: id, status: "schedule" }),
+			PropertyModel.aggregate([
+				{ $match: { owner_id: id } },
+				{ $group: { _id: null, totalUnits: { $sum: "$unit_number" } } },
+			]),
+			MaintenanceModel.aggregate([
+				{ $match: { owner_id: id } },
+				{
+					$group: {
+						_id: null,
+						totalMaintenanceCost: { $sum: "$maintenance_fee" },
+					},
+				},
+			]),
+		]);
+
+		const totalUnits = totalUnitsResult[0]?.totalUnits || 0;
+		const empty_units = totalUnits - tenantCount;
+		const total_maintenance_cost =
+			totalMaintenanceCost[0]?.totalMaintenanceCost || 0;
+
+		const occupancyRate = `${
+			totalUnits > 0 ? (tenantCount / totalUnits).toFixed(4) * 100 : 0
+		}%`;
+
+		const stats = {
+			total_tenants: tenantCount,
+			total_properties: propertyCount,
+			occupied_units: tenantCount,
+			total_maintenance: maintenanceCount,
+			overdue_maintenance: overdueMaintenance,
+			completed_maintenance: completedMaintenance,
+			schedule_maintenance: scheduleMaintenance,
+			total_maintenance_cost,
+			empty_units,
+			occupancy_rate: occupancyRate,
+		};
+
+		return stats;
+	} catch (error) {
+		console.log(error);
+		throw new ErrorWithStatus(
+			error.message || "An error occured",
+			error.status || 500
+		);
+	}
+}
+
+export async function userReport(userId) {
+	//Get All Tenant rent_paid for each property
+	//Calculate total earning per property
+	try {
+		const allProperties = await PropertyModel.find({ owner_id: userId });
+
+		// console.log(allProperties);
+		const reports = await allProperties.reduce(
+			async (item, currentProperty) => {
+				const label = currentProperty.title;
+
+				const tenants = await TenantModel.find({
+					assigned_property: currentProperty._id,
+				});
+
+				const value = tenants.reduce((item, currentTenant) => {
+					const totalAmount = item + currentTenant.rent_paid;
+
+					return totalAmount;
+				}, 0);
+
+				// const total = allProperties.reduce(
+				// 	(report, currentIten) => report + currentIten.rent_paid
+				// );
+				// let total = 0;
+
+				// total += current.rent_paid;
+				// console.log(current);
+
+				const itemObj = {
+					label,
+					value,
+				};
+
+				// console.log(percentage);
+
+				const allItems = [];
+
+				// console.log("Line 348", itemObj);
+
+				allItems.push(itemObj);
+
+				const total = allItems.reduce(
+					(item, currentItem) => item + currentItem.value,
+					0
+				);
+
+				// console.log(total);
+
+				const percentage = ((value / total) * 100).toFixed(1);
+
+				console.log(percentage);
+
+				itemObj.precentage = percentage;
+
+				return allItems;
+			},
+			[]
+		);
+
+		// const reports = allProperties.map(()=>)
+
+		console.log(reports);
+
+		return [];
+	} catch (error) {
+		console.log(error);
 	}
 }

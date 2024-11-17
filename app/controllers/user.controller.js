@@ -6,6 +6,7 @@ import {
 	updateUser,
 	changePassword,
 	updatedSettings,
+	userReport,
 } from "../services/user.service.js";
 import { responseModel } from "../utils/responseModel.js";
 import { refreshToken } from "../utils/generateToken.js";
@@ -184,6 +185,18 @@ export async function handleUpdateSettings(req, res) {
 					`${key.replace("_", " ")} settings updated successfully`
 				)
 			);
+	} catch (error) {
+		res
+			.status(error.status || 500)
+			.json(responseModel(false, error.message || "An error occured!"));
+	}
+}
+
+export async function handleUserReport(req, res) {
+	try {
+		const userId = req.user._id;
+
+		const reports = await userReport(userId);
 	} catch (error) {
 		res
 			.status(error.status || 500)

@@ -10,6 +10,7 @@ import {
 	handleUpdateUser,
 	handleChangePassword,
 	handleUpdateSettings,
+	handleUserReport,
 } from "../controllers/user.controller.js";
 import {
 	createUserSchema,
@@ -61,4 +62,5 @@ userRouter.patch(
 	validateMiddleware(updateSettingsSchema),
 	handleUpdateSettings
 );
+userRouter.get("/reports", authMiddleware, handleUserReport);
 export default userRouter;
