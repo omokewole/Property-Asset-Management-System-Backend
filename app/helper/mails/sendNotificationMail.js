@@ -5,6 +5,7 @@ export default async function sendNotificationMail(email, name, notification) {
   const transporter = createMaiTransporter();
 
   if (!email || !name || !notification) return;
+  
 
   const mailOptions = {
     from: '"UpvilleHomes" <upvillehomes@gmail.com>',
@@ -15,7 +16,8 @@ export default async function sendNotificationMail(email, name, notification) {
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log("Notification email sent");
+
+    return true;
   } catch (err) {
     throw new ErrorWithStatus(
       err.message || "An error occured",

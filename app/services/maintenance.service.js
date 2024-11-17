@@ -1,15 +1,28 @@
 import MaintenanceModel from "../models/maintenance.model.js";
 import ErrorWithStatus from "../exceptions/errorWithStatus.js";
+import { addNotificationHandler } from "../controllers/notification.controller.js";
 
 export async function createMaintenance(newMaintenanceData) {
   try {
     const newMaintenance = new MaintenanceModel(newMaintenanceData);
+    const populatedMaintenance = await newMaintenance.populate("property");
 
-    const savedMaintenance = await newMaintenance.save();
+    const notificationSent = await addNotificationHandler({
+      user_id: newMaintenanceData.owner_id,
+      title: "New Maintenance Request Created",
+      content: `A new maintenance request has been submitted for ${newMaintenance.property.title} regarding ${newMaintenance.facility}`,
+      path: "maintenances",
+      ref: newMaintenance._id,
+    });
 
-    const populatedMaintenance = await MaintenanceModel.findById(
-      savedMaintenance._id
-    ).populate("property");
+    if (!notificationSent) {
+      throw new ErrorWithStatus(
+        "An error occured when sending notification",
+        400
+      );
+    }
+
+    await newMaintenance.save();
 
     return populatedMaintenance;
   } catch (error) {

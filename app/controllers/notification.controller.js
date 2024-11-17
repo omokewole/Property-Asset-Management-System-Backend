@@ -30,7 +30,21 @@ export async function addNotificationHandler({
 
     const user = await UserModel.findById(user_id);
 
-    await sendNotificationMail(user.email, user.name, newNotification);
+    const emailNotificationSent = await sendNotificationMail(
+      user.email,
+      user.name,
+      newNotification
+    );
+
+    if (!emailNotificationSent) {
+      throw new ErrorWithStatus(
+        error.message || "An error occured adding notificiation",
+        error.status || 400
+      );
+    }
+
+    return emailNotificationSent;
+    
   } catch (error) {
     throw new ErrorWithStatus(
       error.message || "An error occured adding notificiation",

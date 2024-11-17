@@ -6,7 +6,6 @@ import {
   singleMaintenance,
 } from "../services/maintenance.service.js";
 import { responseModel } from "../utils/responseModel.js";
-import { addNotificationHandler } from "./notification.controller.js";
 
 export async function handleCreateMaintenance(req, res) {
   try {
@@ -16,14 +15,6 @@ export async function handleCreateMaintenance(req, res) {
     const newMaintenanceData = await createMaintenance({
       ...newMaintenanceInfo,
       owner_id,
-    });
-
-    await addNotificationHandler({
-      user_id: newMaintenanceData.owner_id,
-      title: "New Maintenance Request Created",
-      content: `A new maintenance request has been submitted for ${newMaintenanceData.property.title} regarding ${newMaintenanceData.facility}`,
-      path: "maintenances",
-      ref: newMaintenanceData._id,
     });
 
     res

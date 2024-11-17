@@ -9,7 +9,7 @@ export const tenantValidationSchema = Joi.object({
     .required()
     .custom(phoneValidation, "Phone number validation")
     .messages({
-      "string.empty": "Phone number is required!",
+      "string.empty": "Phone number is required!",     
     }),
 
   start_date: Joi.date().required(),
