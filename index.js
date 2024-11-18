@@ -7,6 +7,7 @@ import PropertyRourter from "./app/routes/property.route.js";
 import TenantRouter from "./app/routes/tenant.route.js";
 import MaintenanceRouter from "./app/routes/maintenance.route.js";
 import NotificationRouter from "./app/routes/notification.route.js";
+import SupportRouter from "./app/routes/support.route.js";
 
 import path from "path";
 
@@ -23,6 +24,7 @@ app.use("/api/v1/properties", PropertyRourter);
 app.use("/api/v1/tenants", TenantRouter);
 app.use("/api/v1/maintenances", MaintenanceRouter);
 app.use("/api/v1/notifications", NotificationRouter);
+app.use("/api/v1/supports", SupportRouter);
 
 app.get("/", (_, res) => {
 	res.send("Welcome to UpvilleHomes Api");
