@@ -7,12 +7,13 @@ import PropertyRourter from "./app/routes/property.route.js";
 import TenantRouter from "./app/routes/tenant.route.js";
 import MaintenanceRouter from "./app/routes/maintenance.route.js";
 import NotificationRouter from "./app/routes/notification.route.js";
+import SupportRouter from "./app/routes/support.route.js";
 
-import path from "path";
+// import path from "path";
 
 dotenv.config();
 
-export const dir_name = path.dirname(new URL(import.meta.url).pathname);
+// export const dir_name = path.dirname(new URL(import.meta.url).pathname);
 
 const app = express();
 app.use(express.json());
@@ -23,6 +24,7 @@ app.use("/api/v1/properties", PropertyRourter);
 app.use("/api/v1/tenants", TenantRouter);
 app.use("/api/v1/maintenances", MaintenanceRouter);
 app.use("/api/v1/notifications", NotificationRouter);
+app.use("/api/v1/supports", SupportRouter);
 
 app.get("/", (_, res) => {
 	res.send("Welcome to UpvilleHomes Api");
