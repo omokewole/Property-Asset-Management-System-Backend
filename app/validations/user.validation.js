@@ -40,7 +40,7 @@ export const verifyUserSchema = Joi.object({
 export const updateUserSchema = Joi.object({
 	email: Joi.string().email().required(),
 	name: Joi.string().required(),
-	company: Joi.string().allow(null).empty(""),
+	company: Joi.string().required(),
 	phone: Joi.string().allow(null).empty(""),
 	image: Joi.any()
 		.custom((value, helper) => {

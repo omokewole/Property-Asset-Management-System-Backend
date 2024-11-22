@@ -19,35 +19,35 @@ export function generateMaintenanceAddedEmail(maintenance) {
       <mj-section>
         <mj-column>
           <mj-text font-size="22px" align="left">Property Maintenance Scheduled Successfully!</mj-text>
-          <mj-text font-weight="400" font-size="14px">Hello ${
+          <mj-text font-size="14px">Hello ${
 						maintenance.owner_id.name
 					},</mj-text>
-         <mj-text font-weight="300">Great news!</mj-text>
-          <mj-text font-weight="300">Maintenance has been schedule for your property.</mj-text>
-          <mj-text font-weight="300">Here are the details:</mj-text>
+         <mj-text >Great news!</mj-text>
+          <mj-text >Maintenance has been schedule for your property.</mj-text>
+          <mj-text >Here are the details:</mj-text>
         </mj-column>
       </mj-section>
       <mj-section>
         <mj-column>
-          <mj-text font-size="16px" font-weight="400">Property Details:</mj-text>
-          <mj-text font-weight="300" color="#667185">
+          <mj-text font-size="16px">Maintenance Details:</mj-text>
+          <mj-text  color="#667185">
             Property Name:
-            <span style="color: #212121; font-weight: 400;">${
-							maintenance.property.name
+            <span style="color: #212121;">${
+							maintenance.property.title
 						}</span>
           </mj-text>
   
-          <mj-text font-weight="300" color="#667185">Facility: <span style="color: #212121; font-weight: 400;">${
+          <mj-text  color="#667185">Facility: <span style="color: #212121; font-weight: 400;">${
 						maintenance.facility
 					}</span></mj-text>
-          <mj-text font-weight="300" color="#667185">Scheduled Maintenance: <span style="color: #212121; font-weight: 400;">${formatDate(
+          <mj-text  color="#667185">Scheduled Maintenance: <span style="color: #212121; font-weight: 400;">${formatDate(
 						maintenance.schedule_date
 					)}</span></mj-text>
-          <mj-text font-weight="300" color="#667185">Assigned Technician: <span style="color: #212121; font-weight: 400;">${
+          <mj-text  color="#667185">Assigned Technician: <span style="color: #212121; font-weight: 400;">${
 						maintenance.technician
 					}</span> 
           </mj-text>
-          <mj-text font-weight="300" color="#667185">Task Status: <span style="color: #212121; font-weight: 400;">${
+          <mj-text  color="#667185">Task Status: <span style="color: #212121; font-weight: 400;">${
 						maintenance.status
 					}</span></mj-text>          
         </mj-column>
@@ -55,18 +55,18 @@ export function generateMaintenanceAddedEmail(maintenance) {
       <mj-section>
         <mj-column>
           <mj-text font-size="16px" font-weight="400">You can now:</mj-text>
-          <mj-text font-weight="300"><span style="color: #212121; font-weight: 400;">&#x2022;</span> Add and manage tenant details for this property.</mj-text>
-          <mj-text font-weight="300"><span style="color: #212121; font-weight: 400;">&#x2022;</span> Track lease agreements and payment records.</mj-text>
-          <mj-text font-weight="300"><span style="color: #212121; font-weight: 400;">&#x2022;</span> Monitor maintenance schedules and property performance.</mj-text>
-          <mj-text font-weight="300">
+          <mj-text ><span style="color: #212121; font-weight: 400;">&#x2022;</span> Add and manage tenant details for this property.</mj-text>
+          <mj-text ><span style="color: #212121; font-weight: 400;">&#x2022;</span> Track lease agreements and payment records.</mj-text>
+          <mj-text ><span style="color: #212121; font-weight: 400;">&#x2022;</span> Monitor maintenance schedules and property performance.</mj-text>
+          <mj-text >
           Keeping your property well-maintained ensures tenant satisfaction and preserves its value.
           </mj-text>
-          <mj-text font-weight="300">
+          <mj-text >
           If you need to modify this schedule or add more tasks, you can manage everything in your dashboard.
           </mj-text>
-          <mj-text font-weight="300">Warm Regards,
+          <mj-text >Warm Regards,
           </mj-text>
-          <mj-text font-weight="300">The Upville Homes Team</mj-text>
+          <mj-text >The Upville Homes Team</mj-text>
         </mj-column>
       </mj-section>
       <mj-section>

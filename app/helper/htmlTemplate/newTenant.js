@@ -10,7 +10,7 @@ export function generateTenantAddedEmail(tenant) {
 	const year = date.getFullYear();
 
 	const mjmlTemplate = `<mjml>
-    <mj-body background-color="#fafafa">
+    <mj-body background-color="#ffffff">
     <mj-section background-color="#0077B6" padding="20px 0">
     <mj-column>
 
@@ -78,9 +78,14 @@ export function generateTenantAddedEmail(tenant) {
 
 	const { html, errors } = mjml2html(mjmlTemplate);
 
+
+  console.log(errors)
+
 	if (errors.length > 0) {
 		throw new Error(`MJML Conversion Errors: ${errors.join(", ")}`);
 	}
+
+
 
 	return html;
 }

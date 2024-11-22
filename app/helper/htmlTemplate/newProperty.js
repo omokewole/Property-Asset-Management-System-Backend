@@ -19,24 +19,24 @@ export function generatePropertyAddedEmail(property) {
       <mj-section>
         <mj-column>
           <mj-text font-size="22px" align="left">Tenant Added to Your Property Portfolio!</mj-text>
-          <mj-text font-weight="400" font-size="14px">Hello ${property.owner_id.name},</mj-text>
-          <mj-text font-weight="300">
+          <mj-text font-size="14px">Hello ${property.owner_id.name},</mj-text>
+          <mj-text >
           Congratulations! You’ve successfully added a new property to your Upville Homes account. Here are the details:          </mj-text>
         </mj-column>
       </mj-section>
       <mj-section>
         <mj-column>
-          <mj-text font-size="16px" font-weight="400">Property Details:</mj-text>
-          <mj-text font-weight="300" color="#667185">
+          <mj-text font-size="16px">Property Details:</mj-text>
+          <mj-text  color="#667185">
             Property Name:
             <span style="color: #212121; font-weight: 400;">${property.title}</span>
           </mj-text>
   
-          <mj-text font-weight="300" color="#667185">Location: <span style="color: #212121; font-weight: 400;">${property.location}</span></mj-text>
-          <mj-text font-weight="300" color="#667185">Property Type: <span style="color: #212121; font-weight: 400;">${property.property_type}</span></mj-text>
-          <mj-text font-weight="300" color="#667185">Address: <span style="color: #212121; font-weight: 400;">${property.address}</span> 
+          <mj-text  color="#667185">Location: <span style="color: #212121; font-weight: 400;">${property.location}</span></mj-text>
+          <mj-text  color="#667185">Property Type: <span style="color: #212121; font-weight: 400;">${property.property_type}</span></mj-text>
+          <mj-text  color="#667185">Address: <span style="color: #212121; font-weight: 400;">${property.street}</span> 
           </mj-text>
-          <mj-text font-weight="300" color="#667185">Number of Units: <span style="color: #212121; font-weight: 400;">${property.unit_number}</span> 
+          <mj-text  color="#667185">Number of Units: <span style="color: #212121; font-weight: 400;">${property.unit_number}</span> 
                      </mj-text>
        
           
@@ -44,17 +44,17 @@ export function generatePropertyAddedEmail(property) {
       </mj-section>
       <mj-section>
         <mj-column>
-          <mj-text font-size="16px" font-weight="400">You can now:</mj-text>
-          <mj-text font-weight="300"><span style="color: #212121; font-weight: 400;">&#x2022;</span> Add and manage tenant details for this property.</mj-text>
-          <mj-text font-weight="300"><span style="color: #212121; font-weight: 400;">&#x2022;</span> Track lease agreements and payment records.</mj-text>
-          <mj-text font-weight="300"><span style="color: #212121; font-weight: 400;">&#x2022;</span> Monitor maintenance schedules and property performance.</mj-text>
+          <mj-text font-size="16px">You can now:</mj-text>
+          <mj-text ><span style="color: #212121; font-weight: 400;">&#x2022;</span> Add and manage tenant details for this property.</mj-text>
+          <mj-text ><span style="color: #212121; font-weight: 400;">&#x2022;</span> Track lease agreements and payment records.</mj-text>
+          <mj-text ><span style="color: #212121; font-weight: 400;">&#x2022;</span> Monitor maintenance schedules and property performance.</mj-text>
   
-          <mj-text font-weight="300">
+          <mj-text >
             Thank you for using Upville Homes to simplify property management!
           </mj-text>
-          <mj-text font-weight="300">Warm Regards,
+          <mj-text >Warm Regards,
           </mj-text>
-          <mj-text font-weight="300">The Upville Homes Team</mj-text>
+          <mj-text >The Upville Homes Team</mj-text>
         </mj-column>
       </mj-section>
       <mj-section>
