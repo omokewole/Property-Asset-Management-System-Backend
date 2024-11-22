@@ -34,3 +34,25 @@ export async function startChat({ user_id, message, image_url }) {
 		);
 	}
 }
+
+export async function sendMessage({ user_id, message, image_url, session_id }) {
+	try {
+		const newMessage = await new SupportModel({
+			user_id,
+			message,
+			image_url,
+			session_id,
+		});
+
+		await newMessage.save();
+
+		return newMessage;
+		
+	} catch (error) {
+		console.log(error);
+		throw new ErrorWithStatus(
+			error.message || "An error occured",
+			error.status || 500
+		);
+	}
+}

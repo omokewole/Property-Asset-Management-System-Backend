@@ -9,11 +9,11 @@ import MaintenanceRouter from "./app/routes/maintenance.route.js";
 import NotificationRouter from "./app/routes/notification.route.js";
 import SupportRouter from "./app/routes/support.route.js";
 
-import path from "path";
+// import path from "path";
 
 dotenv.config();
 
-export const dir_name = path.dirname(new URL(import.meta.url).pathname);
+// export const dir_name = path.dirname(new URL(import.meta.url).pathname);
 
 const app = express();
 app.use(express.json());

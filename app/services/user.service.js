@@ -24,8 +24,6 @@ export async function createUser(newUser) {
 		const user = new UserModel(newUser);
 		const savedUser = await user.save();
 
-		const { accessToken, refreshToken } = generateJWT(user);
-
 		const userObj = savedUser.toObject();
 
 		const defaultSettings = await new SettingModel({ user_id: userObj._id });
@@ -36,14 +34,7 @@ export async function createUser(newUser) {
 		delete userObj.password;
 		delete userObj.email_token_expires;
 
-		const stats = await userStats(userObj._id);
-
-		userObj.settinga = defaultSettings;
-
 		return {
-			access_token: accessToken,
-			refresh_token: refreshToken,
-			stats,
 			user: userObj,
 		};
 	} catch (error) {
@@ -57,6 +48,10 @@ export async function loginUser(user) {
 
 		if (!userData) {
 			throw new ErrorWithStatus("Incorrect email or password", 401);
+		}
+
+		if (!userData.verified_at) {
+			throw new ErrorWithStatus("Kindly verify your email", 400);
 		}
 
 		const passwordMatch = await bcrypt.compare(
@@ -133,11 +128,11 @@ export async function verifyUserEmail(emailToken) {
 		const user = await UserModel.findOne({ email_token: emailToken });
 
 		if (!user) {
-			throw new ErrorWithStatus("Invalid or expired token", 400);
+			throw new ErrorWithStatus("Invalid  token", 400);
 		}
 
 		if (user.email_token_expires < Date.now()) {
-			throw new ErrorWithStatus("Token has expired", 400);
+			throw new ErrorWithStatus(`Token has expired for: ${user.email}`, 400);
 		}
 
 		user.verified_at = new Date();
@@ -145,6 +140,11 @@ export async function verifyUserEmail(emailToken) {
 		user.email_token_expires = null;
 
 		const userObj = await user.save();
+
+		const stats = await userStats(userObj._id);
+
+		const userSettings = await SettingModel.find({ user_id: userObj._id });
+
 		const { accessToken, refreshToken } = generateJWT(user);
 
 		delete userObj.password;
@@ -152,7 +152,14 @@ export async function verifyUserEmail(emailToken) {
 		delete userObj.email_token;
 		delete userObj.email_token_expires;
 
-		return { accessToken, refreshToken, user };
+		userObj.settings = userSettings;
+
+		return {
+			access_token: accessToken,
+			refresh_token: refreshToken,
+			user: userObj,
+			stats,
+		};
 	} catch (error) {
 		throw new ErrorWithStatus(error.message, error.status || 500);
 	}
@@ -382,7 +389,36 @@ export async function userPropertyPerformanceReport(userId) {
 			};
 		});
 	} catch (error) {
-		console.error("Error in userPropertyPerformanceReport:", error);
+		throw new ErrorWithStatus(
+			error.message || "An error occurred",
+			error.status || 500
+		);
+	}
+}
+
+export async function resendVerificationEmail(email) {
+	console.log(email);
+	try {
+		const user = await UserModel.findOne({email});
+
+		if (!user) {
+			throw new ErrorWithStatus("User not found", 404);
+		}
+
+		if (user.verified_at) {
+			throw new ErrorWithStatus("User is verified", 400);
+		}
+
+		const newToken = crypto.randomBytes(64).toString("hex");
+
+		user.email_token = newToken;
+		user.email_token_expires = new Date(Date.now() + 10 * 60 * 1000);
+
+		await user.save();
+
+		return user;
+	} catch (error) {
+		console.log(error);
 		throw new ErrorWithStatus(
 			error.message || "An error occurred",
 			error.status || 500

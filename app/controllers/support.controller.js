@@ -1,4 +1,4 @@
-import { startChat } from "../services/support.service.js";
+import { startChat, sendMessage } from "../services/support.service.js";
 import { responseModel } from "../utils/responseModel.js";
 
 export async function handleStartChat(req, res) {
@@ -25,5 +25,33 @@ export async function handleStartChat(req, res) {
 		res
 			.status(error.status || 500)
 			.json(responseModel(false, error.message || "An error occured"));
+	}
+}
+
+export async function handleSendMessage(req, res) {
+	try {
+		const { message, session_id } = req.body;
+		const user_id = req.body;
+		const imgFile = req.file;
+		let image_url;
+
+		if (imgFile) {
+			//Do something
+		}
+
+		const newMessage = await sendMessage({
+			message,
+			session_id,
+			user_id,
+			image_url,
+		});
+
+		res
+			.status(201)
+			.json(responseModel(true, "Message sent successfully", newMessage));
+	} catch (error) {
+		res
+			.status(error.status || 500)
+			.json(responseModel(false, error.message || "An  error occured"));
 	}
 }
