@@ -1,50 +1,59 @@
 import mongoose from "mongoose";
 
 const maintenanceSchema = mongoose.Schema(
-	{
-		owner_id: {
-			type: mongoose.Schema.Types.ObjectId,
-			ref: "User",
-			required: true,
-		},
+  {
+    owner_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
 
-		facility: {
-			type: String,
-			required: true,
-		},
+    facility: {
+      type: String,
+      required: true,
+    },
 
-		property: {
-			type: mongoose.Schema.Types.ObjectId,
-			ref: "Property",
-			required: true,
-		},
+    property: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Property",
+      required: true,
+    },
 
-		maintenance_fee: {
-			type: Number,
-			required: true,
-			trim: true,
-		},
+    maintenance_fee: {
+      type: Number,
+      required: true,
+      trim: true,
+    },
 
-		schedule_date: {
-			type: Date,
-			required: true,
-			trim: true,
-		},
+    schedule_date: {
+      type: Date,
+      required: true,
+      trim: true,
+    },
 
-		technician: {
-			type: String,
-			required: true,
-			trim: true,
-		},
+    technician: {
+      type: String,
+      required: true,
+      trim: true,
+    },
 
-		status: {
-			type: String,
-			required: true,
-			enum: ["overdue", "completed", "schedule"],
-		},
-	},
-	{ timestamps: true }
+    status: {
+      type: String,
+      required: true,
+      enum: ["overdue", "completed", "schedule"],
+    },
+  },
+  { timestamps: true }
 );
+
+maintenanceSchema.pre("deleteOne", async function (next) {
+  try {
+    await NotificationModel.deleteMany({ ref: this._id });
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 const MaintenanceModel = mongoose.model("Maintenance", maintenanceSchema);
 
