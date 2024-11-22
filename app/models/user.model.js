@@ -37,26 +37,26 @@ const userSchema = mongoose.Schema(
 			trim: true,
 		},
 
-		image_url: {
-			type: String,
-			default: null,
-		},
-		verified_at: {
-			type: Date,
-			default: null,
-		},
-		email_token: {
-			type: String,
-			default: null,
-		},
-		email_token_expires: {
-			type: Date,
-			default: null,
-		},
-	},
-	{
-		timestamps: true,
-	}
+    image_url: {
+      type: String,
+      default: null,
+    },
+    verified_at: {
+      type: Date,
+      default: null,
+    },
+    email_token: {
+      type: String,
+      default: null,
+    },
+    email_token_expires: {
+      type: Date,
+      default: null,
+    },
+  },
+  {
+    timestamps: true,
+  }
 );
 
 userSchema.pre(
@@ -79,8 +79,7 @@ userSchema.pre(
 		} catch (error) {
 			next(error);
 		}
-	}
-);
+  });
 
 const UserModel = mongoose.model("User", userSchema);
 
