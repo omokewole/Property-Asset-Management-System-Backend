@@ -9,8 +9,6 @@ export default async function sendNotificationMail(
 ) {
 	const transporter = createMaiTransporter();
 
-	console.log(html);
-
 	if (!email || !name || !notification || !html)
 		throw new ErrorWithStatus("Enough arguments not provided", 400);
 
