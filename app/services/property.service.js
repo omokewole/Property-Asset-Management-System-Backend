@@ -1,12 +1,13 @@
 import PropertyModel from "../models/property.model.js";
 import ErrorWithStatus from "../exceptions/errorWithStatus.js";
-import { extractCloudinaryPublicId } from "../utils/extractCloudinaryPublicId.js";
 import { updateUnitAvailability } from "../utils/getUnits.js";
 import TenantModel from "../models/tenant.model.js";
 import { addNotificationHandler } from "../controllers/notification.controller.js";
 import { generatePropertyAddedEmail } from "../helper/htmlTemplate/newProperty.js";
+import cloudinary from "../configs/cloudinary.js";
 
 export async function addProperty(propertyData) {
+	console.log({ propertyData });
 	try {
 		const existerProperty = await PropertyModel.findOne({
 			title: propertyData.title,
@@ -32,7 +33,7 @@ export async function addProperty(propertyData) {
 		const newProperty = new PropertyModel(propertyData);
 
 		const populatedProperty = await newProperty.populate("owner_id");
-    
+
 		const html = generatePropertyAddedEmail(populatedProperty);
 
 		const notificationSent = await addNotificationHandler({
@@ -228,15 +229,36 @@ export async function deleteProperty(propertyId) {
 		}
 
 		if (property.images && property.images.length > 0) {
-			for (const imageUrl of property.images) {
-				const publicId = extractCloudinaryPublicId(imageUrl);
-				Â;
-				await cloudinary.uploader.destroy(publicId);
+			console.log(property.images);
+			for (const image of property.images) {
+				const img = JSON.parse(image);
+				await cloudinary.uploader.destroy(img.public_id);
 			}
 		}
 
 		await property.deleteOne({ _id: propertyId });
 	} catch (error) {
+		console.log(error);
+		throw new ErrorWithStatus(
+			error.message || "An error occured",
+			error.status || 400
+		);
+	}
+}
+
+export async function deletePropertyImage(public_id, property_id) {
+	try {
+		const property = await PropertyModel.findById(property_id);
+
+		const propertyImages = property.images
+			.map((image) => JSON.parse(image))
+			.filter((img) => img.public_id !== public_id);
+
+		property.images = propertyImages.map((img) => JSON.stringify(img));
+
+		return await property.save();
+	} catch (error) {
+		console.log(error);
 		throw new ErrorWithStatus(
 			error.message || "An error occured",
 			error.status || 400

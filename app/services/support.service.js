@@ -2,32 +2,31 @@ import mongoose from "mongoose";
 import ErrorWithStatus from "../exceptions/errorWithStatus.js";
 import { SupportModel, SupportSessionModel } from "../models/support.model.js";
 
-export async function startChat({ user_id, message, image_url }) {
-	const session = await mongoose.startSession();
-	session.startTransaction();
-
+export async function startChat({ user_id, message, image }) {
 	try {
 		const newSupportSession = await new SupportSessionModel({
-			user_id,
+			user: user_id,
 		});
-		await newSupportSession.save({ session });
+
+		if (!newSupportSession) {
+			throw new ErrorWithStatus("Error occured creating new chat", 500);
+		}
+
+		const savedNewSupportSession = await newSupportSession.save();
 
 		const newSupportMessage = await new SupportModel({
-			user_id,
+			sender: user_id,
 			message,
-			image_url,
+			image,
 			session_id: newSupportSession._id,
 		});
-		await newSupportMessage.save({ session });
+		await newSupportMessage.save();
 
-		await session.commitTransaction();
-		session.endSession();
-
-		const populatedMessage = await newSupportMessage.populate("session_id");
-		return populatedMessage;
+		return savedNewSupportSession.populate({
+			path: "user",
+			select: "role image_url name",
+		});
 	} catch (error) {
-		await session.abortTransaction();
-		session.endSession();
 		throw new ErrorWithStatus(
 			error.message || "An error occured",
 			error.status || 500
@@ -47,7 +46,6 @@ export async function sendMessage({ user_id, message, image_url, session_id }) {
 		await newMessage.save();
 
 		return newMessage;
-		
 	} catch (error) {
 		console.log(error);
 		throw new ErrorWithStatus(

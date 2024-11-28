@@ -12,6 +12,7 @@ import {
 	handleUpdateSettings,
 	handleUserPropertyPerformanceReport,
 	handleResendVerificationEmail,
+	handleUpdateUserImage,
 } from "../controllers/user.controller.js";
 import {
 	createUserSchema,
@@ -22,8 +23,8 @@ import {
 	changePasswordSchema,
 	updateSettingsSchema,
 	resendVerificationSchema,
+	updateImageSchema,
 } from "../validations/user.validation.js";
-import upload from "../configs/multer.js";
 
 const userRouter = Router();
 
@@ -54,7 +55,6 @@ userRouter.get("/", authMiddleware, handleUser);
 userRouter.put(
 	"/update",
 	authMiddleware,
-	upload.single("image"),
 	validateMiddleware(updateUserSchema),
 	handleUpdateUser
 );
@@ -71,4 +71,10 @@ userRouter.patch(
 	handleUpdateSettings
 );
 userRouter.get("/reports", authMiddleware, handleUserPropertyPerformanceReport);
+userRouter.patch(
+	"/upload",
+	authMiddleware,
+	validateMiddleware(updateImageSchema),
+	handleUpdateUserImage
+);
 export default userRouter;

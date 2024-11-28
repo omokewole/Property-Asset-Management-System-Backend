@@ -399,7 +399,7 @@ export async function userPropertyPerformanceReport(userId) {
 export async function resendVerificationEmail(email) {
 	console.log(email);
 	try {
-		const user = await UserModel.findOne({email});
+		const user = await UserModel.findOne({ email });
 
 		if (!user) {
 			throw new ErrorWithStatus("User not found", 404);
@@ -419,6 +419,34 @@ export async function resendVerificationEmail(email) {
 		return user;
 	} catch (error) {
 		console.log(error);
+		throw new ErrorWithStatus(
+			error.message || "An error occurred",
+			error.status || 500
+		);
+	}
+}
+
+export async function updateUserImage(image, user_id) {
+	try {
+		const user = await UserModel.findOneAndUpdate(
+			{ _id: user_id },
+			{ image },
+			{
+				new: true,
+				runValidators: true,
+			}
+		);
+
+		if (!user) {
+			throw new ErrorWithStatus("User not found", 404);
+		}
+
+		console.log(user);
+
+		await user.save();
+
+		return user;
+	} catch (error) {
 		throw new ErrorWithStatus(
 			error.message || "An error occurred",
 			error.status || 500

@@ -8,6 +8,7 @@ import {
 	updatedSettings,
 	userPropertyPerformanceReport,
 	resendVerificationEmail,
+	updateUserImage,
 } from "../services/user.service.js";
 import { responseModel } from "../utils/responseModel.js";
 import { refreshToken } from "../utils/generateToken.js";
@@ -224,6 +225,24 @@ export async function handleResendVerificationEmail(req, res) {
 		await sendVerificationMail(user);
 
 		res.status(200).json(responseModel(true, "Verification link resent"));
+	} catch (error) {
+		res
+			.status(error.status || 500)
+			.json(responseModel(false, error.message || "An error occured!"));
+	}
+}
+
+export async function handleUpdateUserImage(req, res) {
+	try {
+		const { image } = req.body;
+		const { _id } = req.user;
+
+		const updatedUser = await updateUserImage(image, _id);
+
+		res
+			.status(200)
+			.json(responseModel(true, "Image uploaded successfully", updatedUser));
+			
 	} catch (error) {
 		res
 			.status(error.status || 500)

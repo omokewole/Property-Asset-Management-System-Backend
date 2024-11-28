@@ -42,24 +42,6 @@ export const updateUserSchema = Joi.object({
 	name: Joi.string().required(),
 	company: Joi.string().required(),
 	phone: Joi.string().allow(null).empty(""),
-	image: Joi.any()
-		.custom((value, helper) => {
-			if (!value || !value.mimetype) {
-				return true;
-			}
-
-			const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
-			if (!allowedTypes.includes(value.mimetype)) {
-				return helper.message("Only jpeg, png, and gif images are allowed");
-			}
-
-			if (value.size > 5 * 1024 * 1024) {
-				return helper.message("Image size must be less than 5MB");
-			}
-
-			return value;
-		})
-		.optional(),
 });
 
 export const changePasswordSchema = Joi.object({
@@ -87,4 +69,11 @@ export const updateSettingsSchema = Joi.object({
 
 export const resendVerificationSchema = Joi.object({
 	email: Joi.string().email().required(),
+});
+
+export const updateImageSchema = Joi.object({
+	image: Joi.object({
+		url: Joi.string().uri().required(),
+		public_id: Joi.string().required(),
+	}).required(),
 });

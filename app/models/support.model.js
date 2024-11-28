@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const supportSchema = mongoose.Schema(
 	{
-		user_id: {
+		sender: {
 			type: mongoose.Schema.Types.ObjectId,
 			required: true,
 			ref: "User",
@@ -14,12 +14,11 @@ const supportSchema = mongoose.Schema(
 		},
 		message: {
 			type: String,
-			required: true,
 			trim: true,
 		},
-		image_url: {
-			type: String,
-			trim: true,
+		image: {
+			type: Object,
+			default: null,
 		},
 	},
 	{
@@ -28,12 +27,12 @@ const supportSchema = mongoose.Schema(
 );
 
 const supportSessionSchema = mongoose.Schema({
-	user_id: {
+	user: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: "User",
 		required: true,
 	},
-	admin_id: {
+	admin: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: "User",
 	},
