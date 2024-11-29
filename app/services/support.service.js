@@ -66,7 +66,7 @@ export async function allMessages({
 			sender: user_id,
 			session_id,
 		})
-			.sort({ createdAt: 1 })
+			.sort({ createdAt: -1 })
 			.skip(skip)
 			.limit(limit)
 			.populate("sender", "name email image role")
