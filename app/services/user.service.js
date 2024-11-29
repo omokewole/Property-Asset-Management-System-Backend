@@ -8,6 +8,7 @@ import SettingModel from "../models/settings.model.js";
 import PropertyModel from "../models/property.model.js";
 import TenantModel from "../models/tenant.model.js";
 import MaintenanceModel from "../models/maintenance.model.js";
+import cloudinary from "../configs/cloudinary.js";
 
 export async function createUser(newUser) {
 	try {
@@ -44,7 +45,9 @@ export async function createUser(newUser) {
 
 export async function loginUser(user) {
 	try {
-		const userData = await UserModel.findOne({ email: user.email });
+		const userData = await UserModel.findOne({ email: user.email }).populate(
+			"current_support_session"
+		);
 
 		if (!userData) {
 			throw new ErrorWithStatus("Incorrect email or password", 401);
@@ -91,7 +94,9 @@ export async function loginUser(user) {
 
 export async function user(id) {
 	try {
-		const userData = await UserModel.findById(id);
+		const userData = await UserModel.findById(id).populate(
+			"current_support_session"
+		);
 
 		if (!userData) {
 			throw new ErrorWithStatus("User not found", 404);
@@ -428,24 +433,23 @@ export async function resendVerificationEmail(email) {
 
 export async function updateUserImage(image, user_id) {
 	try {
-		const user = await UserModel.findOneAndUpdate(
-			{ _id: user_id },
-			{ image },
-			{
-				new: true,
-				runValidators: true,
-			}
-		);
+		const user = await UserModel.findById(user_id);
 
 		if (!user) {
 			throw new ErrorWithStatus("User not found", 404);
 		}
 
-		console.log(user);
+		if (user.image.public_id !== image.public_id) {
+			await cloudinary.uploader.destroy(image.public_id);
+		}
+
+		user.image = image;
 
 		await user.save();
 
-		return user;
+		const populatedUser = user.populate("current_support_session");
+
+		return populatedUser;
 	} catch (error) {
 		throw new ErrorWithStatus(
 			error.message || "An error occurred",

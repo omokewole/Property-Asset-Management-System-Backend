@@ -53,6 +53,11 @@ const userSchema = mongoose.Schema(
 			type: Date,
 			default: null,
 		},
+		current_support_session: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "SupportSession",
+			default: null,
+		},
 	},
 	{
 		timestamps: true,
