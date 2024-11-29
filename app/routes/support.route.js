@@ -1,7 +1,8 @@
 import { Router } from "express";
 import {
 	handleStartChat,
-	handleSendMessage,
+	handleAllMessages,
+	handleDeleteSupportImage,
 } from "../controllers/support.controller.js";
 import { adminMiddleware } from "../middlewares/admin.middleware.js";
 import authMiddleware from "../middlewares/auth.middleware.js";
@@ -16,6 +17,7 @@ SupportRouter.post(
 	validateMiddleware(startChatSchema),
 	handleStartChat
 );
-SupportRouter.post("/message", handleSendMessage);
+SupportRouter.get("/messages/:session_id", handleAllMessages);
+SupportRouter.delete("/message/image/:public_id", handleDeleteSupportImage);
 
 export default SupportRouter;

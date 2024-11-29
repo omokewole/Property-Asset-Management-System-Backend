@@ -1,9 +1,6 @@
-import { startChat, sendMessage } from "../services/support.service.js";
+import cloudinary from "../configs/cloudinary.js";
+import { startChat, allMessages } from "../services/support.service.js";
 import { responseModel } from "../utils/responseModel.js";
-import { promisify } from "util";
-import fs from "fs";
-
-const unlinkAsync = promisify(fs.unlink);
 
 export async function handleStartChat(req, res) {
 	try {
@@ -28,30 +25,47 @@ export async function handleStartChat(req, res) {
 	}
 }
 
-export async function handleSendMessage(req, res) {
+export async function handleAllMessages(req, res) {
 	try {
-		const { message, session_id } = req.body;
-		const user_id = req.body;
-		const imgFile = req.file;
-		let image_url;
+		const { session_id } = req.params;
+		const { page = 1, limit = 10 } = req.query;
+		const user_id = req.user._id;
 
-		if (imgFile) {
-			//Do something
+		if (!session_id) {
+			return res
+				.status(400)
+				.json(responseModel(false, "Session ID Param is required"));
 		}
 
-		const newMessage = await sendMessage({
-			message,
-			session_id,
-			user_id,
-			image_url,
-		});
+		const messages = await allMessages({ user_id, session_id, page, limit });
 
-		res
-			.status(201)
-			.json(responseModel(true, "Message sent successfully", newMessage));
+		return res
+			.status(200)
+			.json(responseModel(true, "All messages", { data: messages }));
 	} catch (error) {
 		res
 			.status(error.status || 500)
-			.json(responseModel(false, error.message || "An  error occured"));
+			.json(responseModel(false, error.message || "An error occured"));
+	}
+}
+
+export async function handleDeleteSupportImage(req, res) {
+	try {
+		const { public_id } = req.params;
+
+		if (!public_id) {
+			res.status(400).json(responseModel(false, "Public ID Param is required"));
+		}
+
+		await cloudinary.uploader.destroy(public_id);
+
+		return res
+			.status(200)
+			.json(responseModel(true, "image successfully deleted"));
+	} catch (error) {
+		console.log(error);
+		return res
+			.status(error.status || 500)
+			.json(responseModel(false, error.message || "An error occurred"));
 	}
 }

@@ -10,7 +10,7 @@ const supportSchema = mongoose.Schema(
 		session_id: {
 			type: mongoose.Schema.Types.ObjectId,
 			required: true,
-			ref: "Support_session",
+			ref: "SupportSession",
 		},
 		message: {
 			type: String,
@@ -68,6 +68,6 @@ supportSessionSchema.pre("findOneAndUpdate", async function (next) {
 
 export const SupportModel = mongoose.model("Support", supportSchema);
 export const SupportSessionModel = mongoose.model(
-	"Support_session",
+	"SupportSession",
 	supportSessionSchema
 );
