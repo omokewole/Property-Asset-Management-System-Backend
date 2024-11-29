@@ -35,10 +35,11 @@ const supportSessionSchema = mongoose.Schema({
 	admin: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: "User",
+		default: null,
 	},
 	active: {
 		type: Boolean,
-		default: false,
+		default: true,
 	},
 });
 

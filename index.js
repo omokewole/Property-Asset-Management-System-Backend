@@ -72,40 +72,45 @@ io.on("connection", (socket) => {
 
           const savedNewMessage = await newMessage.save();
 
-          const populatedMessage = await savedNewMessage.populate({
-            path: "sender",
-            select: "name email image role",
-          });
+					const populatedMessage = await savedNewMessage.populate([
+						{
+							path: "sender",
+							select: "name email image role",
+						},
+						{
+							path: "session_id",
+						},
+					]);
 
-          socket.emit(
-            "message",
-            responseModel(true, "Message sent", populatedMessage)
-          );
-        } else {
-          socket.emit(
-            "message",
-            responseModel(
-              false,
-              "Invalid message format",
-              isValidate?.error.details
-            )
-          );
-          console.log(isValidate?.error.details);
-        }
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  });
+					socket.emit(
+						"message",
+						responseModel(true, "Message sent", populatedMessage)
+					);
+				} else {
+					socket.emit(
+						"message",
+						responseModel(
+							false,
+							"Invalid message format",
+							isValidate?.error.details
+						)
+					);
+					console.log(isValidate?.error.details);
+				}
+			}
+		} catch (err) {
+			console.log(err);
+		}
+	});
 
-  socket.on("disconnect", () => {
-    for (const [userId, user] of onlineUsers.entries()) {
-      if (user.socketId === socket.id) {
-        onlineUsers.delete(userId);
-        break;
-      }
-    }
-  });
+	socket.on("disconnect", () => {
+		for (const [userId, user] of onlineUsers.entries()) {
+			if (user.socketId === socket.id) {
+				onlineUsers.delete(userId);
+				break;
+			}
+		}
+	});
 });
 
 async function startServer() {

@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import ErrorWithStatus from "../exceptions/errorWithStatus.js";
 import { SupportModel, SupportSessionModel } from "../models/support.model.js";
 import UserModel from "../models/user.model.js";
@@ -35,12 +34,33 @@ export async function startChat({ user_id, message, image }) {
 		}
 
 		user.current_support_session = newSupportSession._id;
+
 		await user.save();
 
-		return savedNewSupportSession.populate({
-			path: "user",
-			select: "role images name",
-		});
+		const populatedMessage = await savedSupportMessage.populate([
+			{
+				path: "sender",
+				select: "role images name",
+			},
+			{
+				path: "session_id",
+			},
+		]);
+
+		const populatedSession = await savedNewSupportSession.populate([
+			{
+				path: "user",
+				select: "role images name",
+			},
+			{ path: "admin", select: "role images name" },
+		]);
+		console.log(populatedMessage);
+		console.log(populatedSession);
+
+		return {
+			session: populatedSession,
+			newMessage: populatedMessage,
+		};
 	} catch (error) {
 		throw new ErrorWithStatus(
 			error.message || "An error occured",
@@ -92,18 +112,34 @@ export async function allMessages({
 	}
 }
 
-export async function sendMessage({ user_id, message, image_url, session_id }) {
+export async function endChat(user_id, session_id) {
 	try {
-		const newMessage = await new SupportModel({
-			user_id,
-			message,
-			image_url,
-			session_id,
-		});
+		const user = await UserModel.findById(user_id);
 
-		await newMessage.save();
+		const session = await SupportSessionModel.findById(session_id);
 
-		return newMessage;
+		if (!user) {
+			throw new ErrorWithStatus("User not found", 404);
+		}
+
+		if (!session) {
+			throw new ErrorWithStatus("Chat not found", 404);
+		}
+
+		if (
+			session.user.toString() !== user_id &&
+			user_id !== session?.admin?.toString()
+		) {
+			throw new ErrorWithStatus("Forbidden", 403);
+		}
+
+		user.current_support_session = null;
+		session.active = false;
+
+		await user.save();
+		await session.save();
+
+		return true;
 	} catch (error) {
 		console.log(error);
 		throw new ErrorWithStatus(

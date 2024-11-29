@@ -1,6 +1,3 @@
-import fs from "fs";
-import { promisify } from "util";
-
 import {
 	addProperty,
 	allProperties,
@@ -8,6 +5,7 @@ import {
 	deleteProperty,
 	singleProperty,
 	deletePropertyImage,
+	
 } from "../services/property.service.js";
 import { responseModel } from "../utils/responseModel.js";
 import cloudinary from "../configs/cloudinary.js";

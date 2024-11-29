@@ -3,6 +3,7 @@ import {
 	handleStartChat,
 	handleAllMessages,
 	handleDeleteSupportImage,
+	handleEndChat,
 } from "../controllers/support.controller.js";
 import { adminMiddleware } from "../middlewares/admin.middleware.js";
 import authMiddleware from "../middlewares/auth.middleware.js";
@@ -19,5 +20,6 @@ SupportRouter.post(
 );
 SupportRouter.get("/messages/:session_id", handleAllMessages);
 SupportRouter.delete("/message/image/:public_id", handleDeleteSupportImage);
+SupportRouter.get("/end_chat/:session_id", handleEndChat);
 
 export default SupportRouter;

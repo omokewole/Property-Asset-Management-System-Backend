@@ -1,5 +1,9 @@
 import cloudinary from "../configs/cloudinary.js";
-import { startChat, allMessages } from "../services/support.service.js";
+import {
+	startChat,
+	allMessages,
+	endChat,
+} from "../services/support.service.js";
 import { responseModel } from "../utils/responseModel.js";
 
 export async function handleStartChat(req, res) {
@@ -67,5 +71,26 @@ export async function handleDeleteSupportImage(req, res) {
 		return res
 			.status(error.status || 500)
 			.json(responseModel(false, error.message || "An error occurred"));
+	}
+}
+
+export async function handleEndChat(req, res) {
+	try {
+		const user_id = req.user._id;
+		const { session_id } = req.params;
+
+		if (!session_id || session_id === undefined) {
+			return res
+				.status(400)
+				.json(responseModel(false, "Session id is required"));
+		}
+
+		await endChat(user_id, session_id);
+
+		return res.status(200).json(responseModel(true, "Chat ended successfully"));
+	} catch (error) {
+		return res
+			.status(error.status || 500)
+			.json(responseModel(false, error.message || "An error occured"));
 	}
 }
