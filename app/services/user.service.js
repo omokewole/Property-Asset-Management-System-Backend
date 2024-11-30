@@ -439,8 +439,8 @@ export async function updateUserImage(image, user_id) {
 			throw new ErrorWithStatus("User not found", 404);
 		}
 
-		if (user.image.public_id !== image.public_id) {
-			await cloudinary.uploader.destroy(image.public_id);
+		if (user.image && user.image?.public_id !== image.public_id) {
+			await cloudinary.uploader.destroy(user.image.public_id);
 		}
 
 		user.image = image;
