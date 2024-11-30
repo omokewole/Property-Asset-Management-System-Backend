@@ -29,7 +29,7 @@ PropertyRourter.put(
 );
 PropertyRourter.delete("/:propertyId", handleDeleteProperty);
 PropertyRourter.delete(
-	"/images/:publicId/:propertyId",
+	"/images/:publicId",
 	handleDeletePropertyImage
 );
 

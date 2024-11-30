@@ -5,7 +5,6 @@ import {
 	deleteProperty,
 	singleProperty,
 	deletePropertyImage,
-	
 } from "../services/property.service.js";
 import { responseModel } from "../utils/responseModel.js";
 import cloudinary from "../configs/cloudinary.js";
@@ -20,11 +19,11 @@ export async function handleAddProperty(req, res) {
 			owner_id,
 		});
 
-		res
+		return res
 			.status(201)
 			.json(responseModel(true, "New property added suucessfully", result));
 	} catch (error) {
-		res
+		return res
 			.status(error.status || 500)
 			.json(
 				responseModel(
@@ -41,11 +40,11 @@ export async function handleAllProperty(req, res) {
 	try {
 		const result = await allProperties({ owner_id, page, limit, search });
 
-		res
+		return res
 			.status(200)
 			.json(responseModel(true, "User properties retrieved", result));
 	} catch (error) {
-		res
+		return res
 			.status(error.status || 500)
 			.json(
 				responseModel(
@@ -62,13 +61,13 @@ export async function handleSingleProperty(req, res) {
 	try {
 		const result = await singleProperty(propertyId);
 
-		res
+		return res
 			.status(200)
 			.json(
 				responseModel(true, "Single Property retrieved successfully", result)
 			);
 	} catch (error) {
-		res
+		return res
 			.status(error.status || 500)
 			.json(
 				responseModel(
@@ -86,11 +85,11 @@ export async function handleEditProperty(req, res) {
 	try {
 		const result = await editProperty(propertyId, propertyData);
 
-		res
+		return res
 			.status(200)
 			.json(responseModel(true, "Property updated successfully", result));
 	} catch (error) {
-		res
+		return res
 			.status(error.status || 500)
 			.json(
 				responseModel(
@@ -107,9 +106,11 @@ export async function handleDeleteProperty(req, res) {
 	try {
 		await deleteProperty(propertyId);
 
-		res.status(203).json(responseModel(true, "Property Deleted successfully"));
+		return res
+			.status(203)
+			.json(responseModel(true, "Property Deleted successfully"));
 	} catch (error) {
-		res
+		return res
 			.status(error.status || 500)
 			.json(
 				responseModel(
@@ -122,11 +123,12 @@ export async function handleDeleteProperty(req, res) {
 
 export async function handleDeletePropertyImage(req, res) {
 	try {
-		const { publicId, propertyId } = req.params;
+		const { publicId } = req.params;
+		const { propertyId } = req.query;
 		// const user_id = req.user._id;
 
 		if (!publicId) {
-			res
+			return res
 				.status(400)
 				.json(responseModel(false, "Public id params is required"));
 		}
@@ -134,7 +136,7 @@ export async function handleDeletePropertyImage(req, res) {
 		if (!propertyId) {
 			const cloudinaryResp = await cloudinary.uploader.destroy(publicId);
 
-			res
+			return res
 				.status(200)
 				.json(
 					responseModel(true, "image deleted successfully", cloudinaryResp)
@@ -143,11 +145,11 @@ export async function handleDeletePropertyImage(req, res) {
 
 		const result = await deletePropertyImage(publicId, propertyId);
 
-		res
+		return res
 			.status(200)
 			.json(responseModel(true, "image deleted successfully", result));
 	} catch (error) {
-		res
+		return res
 			.status(error.status || 500)
 			.json(
 				responseModel(
