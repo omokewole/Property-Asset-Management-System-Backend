@@ -68,6 +68,7 @@ export async function allMaintenances({
 	limit = 5,
 	order = "",
 	sortBy = "createdAt",
+	search = "",
 }) {
 	try {
 		const filter = { owner_id };
@@ -75,6 +76,10 @@ export async function allMaintenances({
 		const sortOption = {};
 
 		const skip = (page - 1) * limit;
+
+		if (search) {
+			filter.facility = { $regex: search, $options: "i" };
+		}
 
 		if (order && sortBy) {
 			sortOption[sortBy] = order === "ascending" ? 1 : -1;

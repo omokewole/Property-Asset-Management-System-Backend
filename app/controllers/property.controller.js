@@ -149,6 +149,7 @@ export async function handleDeletePropertyImage(req, res) {
 			.status(200)
 			.json(responseModel(true, "image deleted successfully", result));
 	} catch (error) {
+		console.log(error)
 		return res
 			.status(error.status || 500)
 			.json(

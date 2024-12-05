@@ -39,7 +39,7 @@ export async function addTenant(newTenantData) {
 
 		const newTenantObj = await newTenant.populate("assigned_property");
 
-		const  html  =  generateTenantAddedEmail(newTenant);
+		const html = generateTenantAddedEmail(newTenant);
 
 		const notificationSent = await addNotificationHandler({
 			user_id: newTenantData.owner_id,
@@ -77,6 +77,7 @@ export async function allTenants({
 	limit = 5,
 	order = "",
 	sortBy = "createdAt",
+	search = "",
 }) {
 	try {
 		const filter = { owner_id };
@@ -84,6 +85,10 @@ export async function allTenants({
 		const sortOption = {};
 
 		const skip = (page - 1) * limit;
+
+		if (search) {
+			filter.name = { $regex: search, $options: "i" };
+		}
 
 		if (property_id) {
 			filter.assigned_property = property_id;
