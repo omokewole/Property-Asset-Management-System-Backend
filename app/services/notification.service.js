@@ -18,7 +18,7 @@ export async function allNotifications({
 	user_id,
 	state,
 	page = 1,
-	limit = 20,
+	limit = 10,
 }) {
 	try {
 		const skip = (page - 1) * limit;
@@ -37,19 +37,20 @@ export async function allNotifications({
 			.sort({ createdAt: -1 })
 			.skip(skip)
 			.limit(limit);
-		const total_items = await NotificationModel.countDocuments(filter);
-		const total_page = total_items / page;
-		const had_more = total_page > page;
-		const unread = await NotificationModel.countDocuments({
-			user_id,
-			is_read: false,
-		});
+
+		const [total_items, unread_count] = await Promise.all([
+			NotificationModel.countDocuments(filter),
+			NotificationModel.countDocuments({ user_id, is_read: false }),
+		]);
+
+		const total_page = Math.ceil(total_items / limit);
+		const had_more = page < total_page;
 
 		const meta = {
 			current_page: page,
 			total_page,
 			had_more,
-			unread,
+			unread: unread_count,
 		};
 
 		return { notifications, meta };
